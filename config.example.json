@@ -1,0 +1,5 @@
+{
+  "retentionDays": 30,
+  "maxItems": 200,
+  "maxMegabytes": 256
+}

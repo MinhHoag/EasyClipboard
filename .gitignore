@@ -1,0 +1,30 @@
+# Project-local tooling and build output
+.tools/
+**/bin/
+**/obj/
+artifacts/
+TestResults/
+.vs/
+*.user
+*.suo
+
+# Runtime data, pairing credentials, and private certificates
+local-data/
+test-data/
+appsettings.local.json
+pairing*.json
+*.pfx
+*.p12
+*.key
+*.pem
+*.cer
+*.crt
+*.mobileconfig
+*.log
+
+# Local environment and editor state
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
