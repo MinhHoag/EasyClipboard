@@ -27,7 +27,8 @@ public sealed class ReceiverServer : IAsyncDisposable
     { UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow, MaxDepth = 8 };
 
     public ReceiverServer(HotspotBinding binding, Identity identity, TransferService transfers,
-        int setupPort = SetupPort, int transferPort = TransferPort, Func<bool>? present = null, bool allowHomeHttp = false)
+        int setupPort = SetupPort, int transferPort = TransferPort, Func<bool>? present = null, bool allowHomeHttp = false,
+        ClipboardExport? clipboardExport = null)
     {
         present ??= binding.IsPresent;
         if (binding.IsTailscale && !HotspotBinding.IsTailscaleV4(binding.Address))
@@ -64,7 +65,8 @@ public sealed class ReceiverServer : IAsyncDisposable
                 return;
             }
             var operation = context.Request.Method == "POST" && context.Request.Path == "/v1/transfers"
-                ? "Transfer" : context.Request.Method == "GET" && context.Request.Path == "/" ? "Page check" : "Other request";
+                ? "Transfer" : context.Request.Method == "GET" && context.Request.Path == "/v1/clipboard" ? "PC clipboard fetch"
+                : context.Request.Method == "GET" && context.Request.Path == "/" ? "Page check" : "Other request";
             var count = Interlocked.Increment(ref _peerRequestCount);
             var active = Interlocked.Increment(ref _activePeerRequests);
             ReportActivity(new(DateTimeOffset.Now, operation, false, null, active, count));
@@ -91,7 +93,9 @@ public sealed class ReceiverServer : IAsyncDisposable
             catch (BadHttpRequestException) { await Error(context, 413, "request_rejected", "The request was invalid or exceeds 18 MB."); }
             catch (JsonException) { await Error(context, 400, "invalid_json", "Provide a version 1 transfer JSON object."); }
             catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested) { /* Incomplete upload; no clipboard operation began. */ }
-            catch (Exception) { await Error(context, 500, "receiver_error", "The receiver could not complete the transfer. Check local history and retry the same transferId."); }
+            catch (Exception) { await Error(context, 500, "receiver_error", context.Request.Path == "/v1/clipboard"
+                ? "The PC clipboard could not be read. Try copying the item again."
+                : "The receiver could not complete the transfer. Check local history and retry the same transferId."); }
         });
 
         if (!allowHomeHttp)
@@ -104,6 +108,23 @@ public sealed class ReceiverServer : IAsyncDisposable
             : allowHomeHttp
             ? "EasyClipboard home-network prototype is reachable. Transfers require the pairing key. HTTP content and the key are unencrypted. No iPhone certificate profile is needed."
             : "EasyClipboard HTTPS prototype. Verify the local root certificate before trusting it. See the Shortcut setup guide. This page contains no pairing credentials."));
+        _app.MapGet("/v1/clipboard", async (HttpContext context) =>
+        {
+            if (!HttpMethods.IsGet(context.Request.Method))
+                throw new TransferError(405, "get_required", "Use GET to fetch the PC clipboard.");
+            if (!context.Request.IsHttps && !allowHomeHttp)
+                throw new TransferError(426, "https_required", "Use the HTTPS endpoint shown in the Windows app.");
+            if (identity.AuthenticationFailure(context.Request.Headers.Authorization.ToString()) is { } authError)
+                throw authError;
+            if (clipboardExport is null)
+                throw new TransferError(403, "clipboard_export_disabled", "PC clipboard fetching is not enabled.");
+            var content = await clipboardExport.ReadAsync(context.RequestAborted);
+            context.Response.ContentType = content.ContentType;
+            context.Response.ContentLength = content.Bytes.Length;
+            if (content.ContentType == "image/png")
+                context.Response.Headers.ContentDisposition = "inline; filename=\"clipboard.png\"";
+            await context.Response.Body.WriteAsync(content.Bytes, context.RequestAborted);
+        });
         _app.MapPost("/v1/transfers", async (HttpContext context) =>
         {
             if (!context.Request.IsHttps && !allowHomeHttp)

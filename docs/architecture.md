@@ -43,6 +43,14 @@ Limits: 18 MB HTTP body, 1 MB UTF-8 plain text, 12 MB decoded/normalized PNG, 20
 
 ## Storage and clipboard
 
+### On-demand PC-to-phone fetch
+
+`GET /v1/clipboard` uses the same network and Bearer authentication checks. It defaults to disabled and requires the explicit per-session **Allow phone to fetch PC clipboard** checkbox. Successful responses are raw UTF-8 plain text or sanitized PNG with `Cache-Control: no-store`; failures retain the versioned JSON error envelope. HEAD/POST do not read the clipboard. HTTPS-only modes reject HTTP fetches.
+
+`ClipboardExport` permits only one concurrent read, rechecks permission before and after reading/normalization, and invalidates an in-flight request when permission is withdrawn even if re-enabled. `WindowsClipboard.ReadAsync` dispatches to the UI's STA thread, bounds waiting, checks the clipboard sequence for a concurrent change, and reads only PNG/bitmap/text. It does not resolve file paths, HTML resources or URLs. The source shares existing image/text validation limits. No reverse-transfer contents are persisted and the PC clipboard is not changed. Cancelled requests release the read gate; a native clipboard owner that blocks inside an OS/OLE call cannot be forcibly interrupted safely.
+
+The iPhone must run its fetch Shortcut to update its own clipboard; see [get-from-pc.md](get-from-pc.md). Source/sink are simulated in automated tests, so real clipboard ownership and iOS content-type behavior remain end-to-end checks.
+
 Data is validated/fully rasterized before clipboard access. UUID-derived paths prevent path traversal. Files are DPAPI-encrypted, flushed in the destination directory, and atomically renamed. The bank saves a pending item before setting the clipboard, then an applied receipt after successful clipboard access. Success is sent only after both complete.
 
 Network threads dispatch to the Windows Forms STA thread. Windows Forms retries temporary OLE clipboard contention. Images provide Bitmap plus PNG data rather than a path/URL. The prior clipboard's available formats are materialized before replacement. If persisting completion fails, the app attempts restoration unless another application has changed the clipboard meanwhile.

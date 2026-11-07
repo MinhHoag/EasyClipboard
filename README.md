@@ -2,6 +2,8 @@
 
 A Windows prototype for sending one copied iPhone text item or photo over your **house Wi-Fi**, then pasting on your laptop with **Ctrl+V**. The iPhone uses a native **Send to Laptop** Shortcut. The default home HTTP mode needs no ESP32, iPhone app, or certificate profile.
 
+**PC to iPhone is also available:** enable **Allow phone to fetch PC clipboard** and use a separate native **Get from PC** Shortcut. Follow [the reverse-transfer setup](docs/get-from-pc.md). Fetching is off by default and reads only on an authenticated request.
+
 **Tailscale mode is now available:** use the laptop's stable Tailscale address across networks, with HTTP carried inside its encrypted tunnel and no custom certificate profile. Follow [docs/tailscale.md](docs/tailscale.md). Existing home LAN modes remain available for local transfers.
 
 ## Run
@@ -34,9 +36,9 @@ Closing the window keeps the app in the tray. Use **Quit** in the tray to stop i
 
 ## Validation and limits
 
-The build passes without warnings. **81 local checks and restart cycles pass**, including actual loopback HTTP/HTTPS requests, Tailscale routing policy, authentication diagnostics, malformed input, text/image persistence, retries, interrupted uploads, retention, and five same-port receiver restarts. Pixel-by-pixel PNG checks at 72, 96, 144, 192, and 300 DPI guard against resizing image content inside an unchanged canvas. A separate local binding/authentication check passed on the laptop's actual Tailscale interface. The Windows clipboard is simulated in these checks.
+The build passes without warnings. **103 local checks and restart cycles pass**, including actual loopback HTTP/HTTPS requests, Tailscale routing policy, authentication diagnostics, malformed input, text/image persistence, retries, interrupted uploads, retention, and five same-port receiver restarts. Pixel-by-pixel PNG checks at 72, 96, 144, 192, and 300 DPI guard against resizing image content inside an unchanged canvas. 22 reverse-transfer checks cover permission, fresh content, raw text/PNG responses, cancellation, and revocation without changing the PC clipboard or history. A separate local binding/authentication check passed on the laptop's actual Tailscale interface. The Windows clipboard is simulated in these checks.
 
-The user reports the home HTTP native Shortcut text/photo flow working. **Not yet verified:** a real iPhone Tailscale transfer, actual hotspot startup, or live clipboard contention/recovery. The adapter reports Wi-Fi Direct GO support, but that is not proof of hotspot operation. This is a source-build prototype, not a tested release.
+The user reports native Shortcut text/photo transfers working over home Wi-Fi, including Tailscale on Wi-Fi, and confirmed the DPI image fix. Intermittent image-upload timeouts remain under investigation; the current pipeline converts images to PNG and Base64 before upload. Shadowrocket's integrated Tailscale cellular connection remains unresolved. **Not yet verified:** reverse-transfer copying on a real iPhone, actual hotspot startup, or live clipboard contention/recovery. The adapter reports Wi-Fi Direct GO support, but that is not proof of hotspot operation. This is a source-build prototype, not a tested release.
 
 Home HTTP receives authenticated transfers on port 47831 without a certificate profile. It is intended for this house-network prototype, with the accepted privacy tradeoff. Optional HTTPS receives on 47832 and uses 47831 only for public certificate onboarding; HTTP transfers are rejected in those modes. No TLS verification is disabled.
 

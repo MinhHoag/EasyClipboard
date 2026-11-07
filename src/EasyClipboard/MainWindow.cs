@@ -9,6 +9,8 @@ internal sealed class MainWindow : Form
     private readonly HotspotHost _hotspot;
     private readonly WindowsClipboard _clipboard;
     private readonly TransferService _transfers;
+    private readonly ClipboardExport _clipboardExport;
+    private readonly CheckBox _allowFetch = new() { Text = "Allow phone to fetch PC clipboard", AutoSize = true, Padding = new Padding(6), Enabled = false };
     private ReceiverServer? _server;
     private HotspotBinding? _binding;
     private readonly bool _preview;
@@ -49,6 +51,7 @@ internal sealed class MainWindow : Form
         _hotspot = new HotspotHost(false) { Ssid = _identity.Ssid, Password = _identity.WifiPassword };
         _clipboard = new WindowsClipboard(this);
         _transfers = new TransferService(_bank, _clipboard);
+        _clipboardExport = new ClipboardExport(_clipboard);
         _transfers.Changed += () => Ui(() => { _status.Text = "Received, saved locally, and copied. Ready for Ctrl+V."; RefreshHistory(); });
         _hotspot.StatusChanged += message => Ui(() => _status.Text = message);
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(18), ColumnCount = 1, RowCount = 7 };
@@ -80,7 +83,8 @@ internal sealed class MainWindow : Form
         pause.CheckedChanged += (_, _) => _transfers.Paused = pause.Checked;
         var pairing = Button("Pairing / setup");
         pairing.Click += (_, _) => ShowPairing();
-        actions.Controls.AddRange([_start, _stop, pause, pairing]);
+        _allowFetch.CheckedChanged += (_, _) => _clipboardExport.Enabled = _allowFetch.Checked;
+        actions.Controls.AddRange([_start, _stop, pause, pairing, _allowFetch]);
         layout.Controls.Add(actions);
         layout.Controls.Add(_setup);
         var split = new SplitContainer { Dock = DockStyle.Fill, Size = new Size(900, 350), SplitterDistance = 350 };
@@ -148,6 +152,7 @@ internal sealed class MainWindow : Form
     {
         if (_starting || _stopRequests > 0 || _quitting || _server is not null) return;
         _starting = true;
+        _allowFetch.Checked = false;
         UpdateReceiverControls();
         await _receiverGate.WaitAsync();
         try
@@ -164,7 +169,7 @@ internal sealed class MainWindow : Form
                 await _hotspot.StartAsync();
                 _binding = _hotspot.Binding!;
             }
-            var server = new ReceiverServer(_binding, _identity, _transfers, allowHomeHttp: HttpTransport);
+            var server = new ReceiverServer(_binding, _identity, _transfers, allowHomeHttp: HttpTransport, clipboardExport: _clipboardExport);
             _server = server;
             server.PeerActivity += activity => Ui(() =>
             {
@@ -182,7 +187,8 @@ internal sealed class MainWindow : Form
             var trust = TailscaleMode ? "HTTP travels inside Tailscale's encrypted connection. No iPhone certificate profile is needed."
                 : HomeHttp ? "No iPhone profile is needed. HTTP content and the pairing key are unencrypted."
                 : $"Certificate install: http://{_binding.Address}:{ReceiverServer.SetupPort}/install.mobileconfig";
-            _setup.Text = $"{connection}\r\nShortcut URL: {url}\r\n{trust}\r\nFirewall interface ID: {_binding.InterfaceId}\r\n\r\nOpen Pairing / setup for your key. History: {_bank.Root}";
+            var fetchUrl = url.Replace("/v1/transfers", "/v1/clipboard");
+            _setup.Text = $"{connection}\r\nSend to PC URL: {url}\r\nGet from PC URL: {fetchUrl}\r\nEnable 'Allow phone to fetch PC clipboard' to use Get from PC.\r\n{trust}\r\nFirewall interface ID: {_binding.InterfaceId}\r\n\r\nOpen Pairing / setup for your key. History: {_bank.Root}";
             _status.Text = "Ready. Pair your iPhone, then invoke Send to Laptop after copying an item.";
         }
         catch (Exception error)
@@ -195,6 +201,7 @@ internal sealed class MainWindow : Form
 
     private async Task StopAsync()
     {
+        _allowFetch.Checked = false;
         _stopRequests++;
         UpdateReceiverControls();
         await _receiverGate.WaitAsync();
@@ -210,10 +217,12 @@ internal sealed class MainWindow : Form
         _stop.Enabled = !busy && running;
         _mode.Enabled = !busy && !running;
         _interfaces.Enabled = _refresh.Enabled = !busy && !running && HomeMode;
+        _allowFetch.Enabled = !busy && running;
     }
 
     private async Task StopCoreAsync()
     {
+        _allowFetch.Checked = false;
         try
         {
             if (_server is not null) await _server.DisposeAsync();

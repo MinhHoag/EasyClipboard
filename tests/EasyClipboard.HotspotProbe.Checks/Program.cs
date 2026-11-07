@@ -80,4 +80,5 @@ Console.WriteLine($"{passed} checks passed. These are local checks, not iPhone t
 await ReceiverChecks.RunAsync();
 ReceiverChecks.RunPixelPreservationChecks();
 await ReceiverChecks.RunRestartAsync();
+await ClipboardExportChecks.RunAsync();
 if (args.Contains("--tailscale-local")) await ReceiverChecks.RunTailscaleLocalAsync();
