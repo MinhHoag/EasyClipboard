@@ -23,8 +23,6 @@ public sealed class TransferError(int status, string code, string message) : Exc
 
 public static class TransferValidation
 {
-    public const int MaxBodyBytes = 18 * 1024 * 1024;
-    public const int MaxImageBytes = 12 * 1024 * 1024;
     public static ClipItem Prepare(TransferRequest request)
     {
         if (request.Version != 1) throw new TransferError(400, "unsupported_version", "Use protocol version 1.");
@@ -42,19 +40,17 @@ public static class TransferValidation
         }
         else if (request.ContentType == "image/png")
         {
-            if (request.Text is not null || request.Html is not null || string.IsNullOrEmpty(request.DataBase64) || request.DataBase64.Length > MaxBodyBytes)
+            if (request.Text is not null || request.Html is not null || string.IsNullOrEmpty(request.DataBase64))
                 throw new TransferError(400, "invalid_image", "Provide a single base64 PNG. Convert other image formats to PNG in Shortcuts.");
             byte[] bytes;
             try { bytes = Convert.FromBase64String(request.DataBase64); }
             catch (FormatException) { throw new TransferError(400, "invalid_image", "Image data is not valid base64."); }
-            if (bytes.Length > MaxImageBytes) throw new TransferError(413, "image_too_large", "PNG exceeds 12 MB. Resize it in Shortcuts.");
             if (bytes.Length < 33 || !bytes.AsSpan(0, 8).SequenceEqual(new byte[] {137,80,78,71,13,10,26,10}) ||
                 !bytes.AsSpan(12, 4).SequenceEqual("IHDR"u8))
                 throw new TransferError(400, "invalid_image", "Expected actual PNG image data, not a URL or filename.");
             var width = BinaryPrimitives.ReadUInt32BigEndian(bytes.AsSpan(16, 4));
             var height = BinaryPrimitives.ReadUInt32BigEndian(bytes.AsSpan(20, 4));
-            if (width is 0 or > 12000 || height is 0 or > 12000 || (ulong)width * height > 20_000_000)
-                throw new TransferError(413, "image_too_large", "Resize the image below 20 megapixels and 12000 pixels per side.");
+            ImageResources.EnsureImageFits(width, height, bytes.Length);
             try
             {
                 using var input = new MemoryStream(bytes);
@@ -76,9 +72,9 @@ public static class TransferValidation
                 using var output = new MemoryStream();
                 bitmap.Save(output, ImageFormat.Png);
                 png = output.ToArray();
-                if (png.Length > MaxImageBytes) throw new TransferError(413, "image_too_large", "Decoded PNG exceeds 12 MB. Resize it first.");
             }
-            catch (Exception error) when (error is ArgumentException or OutOfMemoryException or System.Runtime.InteropServices.ExternalException)
+            catch (OutOfMemoryException) { throw ImageResources.InsufficientMemory(); }
+            catch (Exception error) when (error is ArgumentException or System.Runtime.InteropServices.ExternalException)
             { throw new TransferError(400, "invalid_image", "The PNG could not be decoded."); }
         }
         else throw new TransferError(415, "unsupported_type", "Use text/plain or image/png.");

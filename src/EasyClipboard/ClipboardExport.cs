@@ -36,9 +36,7 @@ public sealed class ClipboardExport(IClipboardSource source)
             EnsureEnabled(generation);
             if (snapshot.Png is null && string.IsNullOrEmpty(snapshot.Text))
                 throw new TransferError(409, "clipboard_empty", "The PC clipboard is empty. Copy text or an image first.");
-            if (snapshot.Png is { Length: > TransferValidation.MaxImageBytes })
-                throw new TransferError(413, "image_too_large", "The PC clipboard PNG exceeds 12 MB.");
-            // Same image limits and pixel-preserving sanitizer as phone-to-PC transfers.
+            // Same available-memory check and pixel-preserving sanitizer as phone-to-PC transfers.
             var item = TransferValidation.Prepare(new TransferRequest(1, Guid.NewGuid(),
                 snapshot.Png is null ? "text/plain" : "image/png", snapshot.Text,
                 snapshot.Png is null ? null : Convert.ToBase64String(snapshot.Png)));

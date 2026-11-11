@@ -70,8 +70,8 @@ internal static class ClipboardExportChecks
         using (var response = await Get()) Check(response.StatusCode == HttpStatusCode.Conflict && (await response.Content.ReadAsStringAsync()).Contains("clipboard_empty"), "empty clipboard returns a structured failure");
         source.Current = new(Png: [1, 2, 3]);
         using (var response = await Get()) Check(response.StatusCode == HttpStatusCode.BadRequest, "invalid source image is rejected");
-        source.Current = new(Png: new byte[TransferValidation.MaxImageBytes + 1]);
-        using (var response = await Get()) Check(response.StatusCode == HttpStatusCode.RequestEntityTooLarge, "source PNG has a bounded size");
+        source.Current = new(Png: new byte[12 * 1024 * 1024 + 1]);
+        using (var response = await Get()) Check(response.StatusCode == HttpStatusCode.BadRequest, "large invalid source data is still validated as PNG");
         source.Current = new(Text: "bad\0text");
         using (var response = await Get()) Check(response.StatusCode == HttpStatusCode.BadRequest, "source text follows existing validation");
 

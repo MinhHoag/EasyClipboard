@@ -48,7 +48,6 @@ public sealed class WindowsClipboard(Control dispatcher) : IClipboardSink, IClip
             var raw = data.GetData("PNG", false);
             if (raw is byte[] bytes)
             {
-                if (bytes.Length > TransferValidation.MaxImageBytes) throw ImageTooLarge();
                 return new(Png: bytes);
             }
             if (raw is Stream stream)
@@ -63,7 +62,8 @@ public sealed class WindowsClipboard(Control dispatcher) : IClipboardSink, IClip
                     while ((read = stream.Read(buffer, 0, buffer.Length)) != 0)
                     {
                         token.ThrowIfCancellationRequested();
-                        if (output.Length + read > TransferValidation.MaxImageBytes) throw ImageTooLarge();
+                        if (output.Length + read > ImageResources.UploadBodyBudget)
+                            throw ImageResources.InsufficientMemory();
                         output.Write(buffer, 0, read);
                     }
                     return new(Png: output.ToArray());
@@ -75,19 +75,15 @@ public sealed class WindowsClipboard(Control dispatcher) : IClipboardSink, IClip
         {
             using var image = Clipboard.GetImage();
             if (image is null) throw new TransferError(409, "clipboard_changed", "The PC clipboard changed. Try again.");
-            if (image.Width > 12000 || image.Height > 12000 || (long)image.Width * image.Height > 20_000_000)
-                throw new TransferError(413, "image_too_large", "The PC clipboard image exceeds 20 megapixels or 12000 pixels per side.");
+            ImageResources.EnsureImageFits((uint)image.Width, (uint)image.Height, 0);
             using var output = new MemoryStream();
             image.Save(output, System.Drawing.Imaging.ImageFormat.Png);
-            if (output.Length > TransferValidation.MaxImageBytes) throw ImageTooLarge();
             return new(Png: output.ToArray());
         }
         if (data.GetDataPresent(DataFormats.UnicodeText))
             return new(Text: data.GetData(DataFormats.UnicodeText) as string);
         throw new TransferError(415, "unsupported_clipboard", "Copy plain text or an actual image on the PC. Files and other clipboard formats are not supported.");
     }
-
-    private static TransferError ImageTooLarge() => new(413, "image_too_large", "The PC clipboard PNG exceeds 12 MB.");
 
     public Task ApplyAsync(ClipItem item, Action commit)
     {

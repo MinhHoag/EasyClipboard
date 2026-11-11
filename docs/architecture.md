@@ -37,9 +37,9 @@ Image: use `contentType: image/png` and `dataBase64` containing actual PNG bytes
 
 Success: HTTP 200 with `version:1`, `ok:true`, matching `transferId`, `saved:true`, `clipboardUpdated:true`, and `duplicate` Boolean. Failure: appropriate 4xx/5xx and `{version:1,ok:false,error:{code,message}}`.
 
-Errors: 400 invalid JSON/data, 401 invalid/revoked key, 409 ID conflict, 413 size limit, 415 unsupported type, 426 attempted HTTP transfer, 429 another transfer is processing, 503 paused/clipboard busy, 507 local storage failure. Server log providers are disabled; routine logs never contain content or credentials.
+Errors: 400 invalid JSON/data, 401 invalid/revoked key, 409 ID conflict, 415 unsupported type, 426 attempted HTTP transfer, 429 another transfer is uploading/processing, 503 paused/clipboard busy/insufficient PC memory, 507 local storage failure. Server log providers are disabled; routine logs never contain content or credentials.
 
-Limits: 18 MB HTTP body, 1 MB UTF-8 plain text, 12 MB decoded/normalized PNG, 20 megapixels, 12000 pixels per image side, four concurrent connections, one decoding/save transaction at a time. Headers/keepalive have Kestrel bounds. There is no production per-client rate limiter yet. Unknown JSON fields and excessive nesting are rejected.
+Images have no fixed file-size, megapixel or side-length cutoffs and are never downsized. PNG validation/re-encoding preserves dimensions and pixels, while dropping metadata. Authenticated uploads receive a body budget based on current .NET available memory (one eighth of remaining managed-memory headroom), replacing Kestrel's default body limit. One upload is admitted before buffering JSON/base64. A separate conservative allocation estimate checks decoded dimensions before invoking GDI+; insufficient memory returns 503 with PC-side retry guidance. Windows decoder/runtime limits still apply. Text remains limited to 1 MB UTF-8; four concurrent connections, bounded headers/keepalive, and one decoding/save transaction at a time remain. There is no production per-client rate limiter yet. Unknown JSON fields and excessive nesting are rejected.
 
 ## Storage and clipboard
 

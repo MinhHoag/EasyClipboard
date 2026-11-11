@@ -33,7 +33,7 @@ The server sends successful text as `text/plain; charset=utf-8` and images as ac
 ## First tests
 
 1. Copy one short line of text on the PC. Run Get from PC and paste into Notes on iPhone.
-2. Copy an actual image on the PC (for example, a screenshot or an image copied from Paint). Run Get from PC and paste into an image-capable app on iPhone. PNG dimensions and pixels are preserved independently of input DPI; limits remain 12 MB and 20 megapixels.
+2. Copy an actual image on the PC (for example, a screenshot or an image copied from Paint). Run Get from PC and paste into an image-capable app on iPhone. PNG dimensions and pixels are preserved independently of input DPI. There are no fixed image byte, megapixel or side-length cutoffs; available PC memory and Windows decoder support remain practical limits.
 3. Uncheck the PC fetch option and try the Shortcut. It should show the error instead of overwriting the iPhone clipboard or showing success. Re-enable when ready.
 
 The phone must reach the PC, and the PC must be awake. The existing Send to Laptop Shortcut remains unchanged. **Pause receiving** controls incoming transfers; use the separate fetch checkbox to disable outgoing access.

@@ -7,6 +7,7 @@ using EasyClipboard.HotspotProbe;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 
 namespace EasyClipboard;
@@ -20,6 +21,7 @@ public sealed class ReceiverServer : IAsyncDisposable
     public const int TransferPort = 47832;
     private readonly WebApplication _app;
     private readonly X509Certificate2? _certificate;
+    private readonly SemaphoreSlim _uploadGate = new(1, 1);
     private int _activePeerRequests;
     private long _peerRequestCount;
     public event Action<ReceiverActivity>? PeerActivity;
@@ -41,7 +43,6 @@ public sealed class ReceiverServer : IAsyncDisposable
         builder.WebHost.ConfigureKestrel(options =>
         {
             options.AddServerHeader = false;
-            options.Limits.MaxRequestBodySize = TransferValidation.MaxBodyBytes;
             options.Limits.MaxConcurrentConnections = 4;
             options.Limits.MaxRequestHeadersTotalSize = 8192;
             options.Limits.RequestHeadersTimeout = TimeSpan.FromSeconds(10);
@@ -90,7 +91,10 @@ public sealed class ReceiverServer : IAsyncDisposable
             }
             try { await next(context); }
             catch (TransferError error) { await Error(context, error.Status, error.Code, error.Message); }
-            catch (BadHttpRequestException) { await Error(context, 413, "request_rejected", "The request was invalid or exceeds 18 MB."); }
+            catch (BadHttpRequestException error) when (error.StatusCode == 413)
+            { await Error(context, 503, "upload_memory_unavailable", "The upload exceeds what the PC can currently process in memory. Close memory-heavy apps on the PC and retry. No resizing was performed."); }
+            catch (BadHttpRequestException error) { await Error(context, error.StatusCode, "request_rejected", "The upload was incomplete or invalid. Retry the same transferId."); }
+            catch (OutOfMemoryException) { var error = ImageResources.InsufficientMemory(); await Error(context, error.Status, error.Code, error.Message); }
             catch (JsonException) { await Error(context, 400, "invalid_json", "Provide a version 1 transfer JSON object."); }
             catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested) { /* Incomplete upload; no clipboard operation began. */ }
             catch (Exception) { await Error(context, 500, "receiver_error", context.Request.Path == "/v1/clipboard"
@@ -139,14 +143,24 @@ public sealed class ReceiverServer : IAsyncDisposable
                 await Error(context, 415, "json_required", "Use application/json.");
                 return;
             }
-            var request = await JsonSerializer.DeserializeAsync<TransferRequest>(context.Request.Body, RequestJson, context.RequestAborted)
-                ?? throw new TransferError(400, "invalid_json", "Request cannot be null.");
-            context.RequestAborted.ThrowIfCancellationRequested();
-            // After a complete request is accepted, finishing the save/clipboard transaction is independent
-            // of response delivery. A retry uses the same ID and returns the durable receipt.
-            var duplicate = await transfers.ReceiveAsync(request);
-            await context.Response.WriteAsJsonAsync(new { version = 1, ok = true, transferId = request.TransferId,
-                saved = true, clipboardUpdated = true, duplicate });
+            // Claim admission before buffering JSON/base64, not merely before decoding.
+            // A second large upload must not consume another full image's memory.
+            if (!await _uploadGate.WaitAsync(0, context.RequestAborted))
+                throw new TransferError(429, "busy", "Another transfer is being uploaded or processed. Retry this transferId.");
+            try
+            {
+                if (context.Features.Get<IHttpMaxRequestBodySizeFeature>() is { IsReadOnly: false } bodyLimit)
+                    bodyLimit.MaxRequestBodySize = ImageResources.UploadBodyBudget;
+                var request = await JsonSerializer.DeserializeAsync<TransferRequest>(context.Request.Body, RequestJson, context.RequestAborted)
+                    ?? throw new TransferError(400, "invalid_json", "Request cannot be null.");
+                context.RequestAborted.ThrowIfCancellationRequested();
+                // After a complete request is accepted, finishing the save/clipboard transaction is independent
+                // of response delivery. A retry uses the same ID and returns the durable receipt.
+                var duplicate = await transfers.ReceiveAsync(request);
+                await context.Response.WriteAsJsonAsync(new { version = 1, ok = true, transferId = request.TransferId,
+                    saved = true, clipboardUpdated = true, duplicate });
+            }
+            finally { _uploadGate.Release(); }
         });
     }
 

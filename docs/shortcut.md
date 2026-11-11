@@ -87,7 +87,7 @@ Apple documents [JSON POST bodies](https://support.apple.com/en-gb/guide/shortcu
 - On iOS versions offering Shortcut controls, edit Control Center → **Add a Control → Shortcuts** and select **Send to Laptop**. Use Home Screen as fallback.
 - Copy one text item or actual photo, invoke once, wait for confirmation, then Ctrl+V in an appropriate Windows app. For images, try Paint or another bitmap-capable app.
 - The receiver copies PNG content at one source pixel per destination pixel, independent of DPI metadata. Its history preview fits the window without changing the stored image. An earlier receiver bug used DPI-based physical sizing and could shrink content inside an unchanged canvas; after updating, resend the original screenshot with a new transfer ID. Copy Again or a retry of the old ID cannot restore pixels already lost in an old history entry.
-- If PNG exceeds 12 MB or 20 megapixels, add native **Resize Image** before conversion, for example width 2048 with automatic height. PNG conversion can increase file size. The receiver does not accept HEIC directly.
+- Send images at their original resolution; no Resize Image action is required. The former 12 MB, 20-megapixel and 12000-pixel-per-side cutoffs are removed. PNG conversion can increase file size, so large images take longer to upload. Processing depends on available PC memory and Windows PNG-decoder support. Images are validated and re-encoded without changing their dimensions or pixels; metadata is not preserved. The receiver does not accept HEIC directly.
 
 ## Errors, retries, and removal
 
@@ -97,7 +97,8 @@ Apple documents [JSON POST bodies](https://support.apple.com/en-gb/guide/shortcu
 | Certificate/TLS error in optional HTTPS mode | Check verified root trust, clocks, and current IP. Never bypass TLS validation. Home HTTP is a separate explicitly selected mode, not an automatic fallback. |
 | 401 | Read the specific code: `authorization_missing` means the header was absent; `authorization_format` means its scheme/value layout is invalid; `pairing_key_length` reports the received length; `pairing_key_format` means non-hex characters; `pairing_key_mismatch` means the header format was valid but the key differs from the running receiver. The key itself is never included in these diagnostics. |
 | 503 paused / clipboard_busy | Unpause or wait for clipboard contention to clear, then retry. |
-| 413 / invalid image | Resize/convert actual image data before sending. |
+| 503 image_memory_unavailable / upload_memory_unavailable | Close memory-heavy apps on the PC and retry; the receiver never automatically downsizes images. |
+| 400 invalid_image | Send actual PNG image data using the existing Convert Image action. |
 
 For an uncertain response, retry using the **same TransferID and payload**. Simply pressing the Shortcut button again creates a new transfer intentionally. To add manual Retry, repeat the HTTP action behind a Retry choice while keeping this invocation's variables. Automatic retries are not included in this basic recipe.
 

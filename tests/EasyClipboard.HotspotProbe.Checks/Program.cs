@@ -81,4 +81,5 @@ await ReceiverChecks.RunAsync();
 ReceiverChecks.RunPixelPreservationChecks();
 await ReceiverChecks.RunRestartAsync();
 await ClipboardExportChecks.RunAsync();
+await LargeImageChecks.RunAsync();
 if (args.Contains("--tailscale-local")) await ReceiverChecks.RunTailscaleLocalAsync();
