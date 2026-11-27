@@ -15,7 +15,7 @@ internal sealed class WrapTab : Control
 
     // First tab on the panel's left edge: straight left side, no flare.
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
-    public bool FlushLeft { get => _flushLeft; set { _flushLeft = value; Width = value ? 42 : 48; } } // no left flare, so one foot narrower
+    public bool FlushLeft { get => _flushLeft; set { _flushLeft = value; Width = value ? 37 : 42; } } // no left flare, so one foot narrower
     private bool _flushLeft;
 
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
@@ -29,14 +29,14 @@ internal sealed class WrapTab : Control
     {
         SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer |
             ControlStyles.ResizeRedraw | ControlStyles.Selectable, true);
-        Size = new Size(48, 36); // icon body 36 wide plus a small flare each side
+        Size = new Size(42, 36); // icon body 32 wide plus a small flare each side
         Margin = Padding.Empty;
         Cursor = Cursors.Hand;
         TabStop = true;
         AccessibleRole = AccessibleRole.PageTab;
     }
 
-    private int Foot => LogicalToDeviceUnits(6);
+    private int Foot => LogicalToDeviceUnits(5);
     private int BodyLeft => FlushLeft ? 0 : Foot;
     private int BodyRight => Width - Foot;
     public int IconTop => (Height - (Icon?.Height ?? 0)) / 2 + LogicalToDeviceUnits(1);
@@ -45,7 +45,7 @@ internal sealed class WrapTab : Control
     {
         get
         {
-            var side = (Icon?.Height ?? 0) + LogicalToDeviceUnits(14);
+            var side = (Icon?.Height ?? 0) + LogicalToDeviceUnits(10); // fits inside the narrower body
             return new Rectangle((BodyLeft + BodyRight - side) / 2, IconTop + (Icon?.Height ?? 0) / 2 - side / 2, side, side);
         }
     }
