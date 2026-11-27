@@ -8,7 +8,7 @@ Use the existing native Send to Laptop Shortcut across networks, targeting the l
 2. Open EasyClipboard from the Start menu, or use **Start EasyClipboard.cmd** for a source build.
 3. Select the laptop's `100.x.x.x` address and click **Start receiving**. If the list is empty, connect Tailscale and select **Refresh networks**.
 4. On the iPhone, open the laptop's displayed address in Safari, with just `/` after port 47831, for example `http://100.70.0.1:47831/`. It should say the Tailscale receiver is reachable. Replace the example address with your laptop's actual address.
-5. In **both** Shortcut POST actions, replace only the URL with `http://<laptop-Tailscale-IP>:47831/v1/transfers`. Keep the Authorization header, pairing key, transfer ID, text/image JSON, and response checks unchanged.
+5. In **both** Shortcut POST actions, replace only the URL with `http://<laptop-Tailscale-IP>:47831/v1/send-url`. Keep the Authorization header, pairing key, transfer ID, text/image JSON, and response checks unchanged.
 
 The Shortcut targets the laptop. The phone's own IP does not go in that URL. Pairing credentials are still required even on the tailnet. If you previously shared a test key, rotate it after connection troubleshooting and update both headers.
 

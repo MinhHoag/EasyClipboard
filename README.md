@@ -1,53 +1,112 @@
-# EasyClipboard
+<p align="center"><img src="assets/easyclipboard-icon-dots.svg" width="96" alt="EasyClipboard icon"></p>
 
-A Windows clipboard receiver for copied iPhone text and images. Send from a native iPhone Shortcut, then paste on Windows with **Ctrl+V**. The default connection uses **Tailscale** and needs no iPhone certificate profile.
+<h1 align="center">EasyClipboard</h1>
 
-**PC to iPhone is also available:** use the native **Get from PC** Shortcut. Fetching turns on when the receiver starts and reads only on an authenticated request. Follow [the reverse-transfer setup](docs/get-from-pc.md).
+<p align="center">Copy on your iPhone, paste on your Windows PC. And back again.</p>
 
-Follow the [Tailscale setup guide](docs/tailscale.md). LAN and hotspot modes are available under **Settings → Unlock developer mode**. Choose a private local developer password the first time you unlock them.
+<p align="center">
+  <a href="docs/tailscale-setup.md"><b>1. Set up Tailscale</b></a> ·
+  <a href="docs/install.md"><b>2. Set up your iPhone</b></a> ·
+  <a href="docs/tips.md"><b>Handy extras</b></a>
+</p>
 
-## Run
+---
 
-Double-click **Start EasyClipboard.cmd**, or run this from PowerShell in the project folder:
+## What it does
+
+> [!NOTE]
+> **Currently tested only with an iPhone and a Windows PC.** Other phones and computers aren't supported yet.
+
+- **Send:** copy text or a photo on your iPhone, run a Shortcut, press **Ctrl+V** on your PC.
+- **Receive:** copy on your PC, run a Shortcut, paste on your iPhone.
+- **History:** every item is kept on your PC, encrypted, with a calendar that sorts it by day.
+- **Private:** it runs over [Tailscale](https://tailscale.com), your own private network, so it works on any Wi-Fi or cellular. No cloud service stores your clipboard.
+
+```mermaid
+flowchart LR
+    I["iPhone<br/>Shortcut"] -- "text and photos<br/>(Tailscale)" --> P["EasyClipboard<br/>on your PC"]
+    P -- "Ctrl+V" --> A["Any app"]
+    P -. "Receive" .-> I
+```
+
+## Screenshots
+
+| Home (dark) | Home (light) |
+| --- | --- |
+| ![Home screen in dark mode with a cherry blossom edge](docs/images/home-dark.png) | ![Home screen in light mode with a photo preview](docs/images/home-light.png) |
+| **Calendar** | **Customize** |
+| ![Week calendar with copied items sorted by day](docs/images/calendar-light.png) | ![Customize page with edge styles](docs/images/customize-dark.png) |
+
+<sub>Screenshots use sample data.</sub>
+
+## Get started
+
+| Step | What you do | Guide |
+| :---: | --- | --- |
+| 1 | Install EasyClipboard on your PC | [Latest release](https://github.com/MinhHoag/EasyClipboard/releases/latest): download and run **Setup** |
+| 2 | Install Tailscale on PC and iPhone, same account | [Set up Tailscale](docs/tailscale-setup.md) |
+| 3 | Turn on Taildrop, install three Shortcuts **in order**, scan the setup code | [Set up your iPhone](docs/install.md) |
+| 4 | Make it one tap: Action button, menu, home screen | [Handy extras](docs/tips.md) |
+
+When you first open EasyClipboard, a short tour shows you where everything is, including which value goes into which Shortcut field. Rerun it any time from **Settings → Tour**.
+
+EasyClipboard checks for updates when it opens and asks before installing one.
+
+## Privacy and security
+
+- History stays on your PC under `%LOCALAPPDATA%\EasyClipboard`, encrypted for your Windows account. Defaults: 30 days, 200 items, 256 MB (**Settings → Clipboard history**).
+- Every transfer needs your **pairing key**. You can replace it any time in **Pairing / setup**; old Shortcuts then stop working until you run First time Setup again.
+- Receive only reads the PC clipboard when your Shortcut asks, and only while **Settings → Phone fetch** is on.
+- Nothing is typed or pasted for you, and nothing watches your iPhone's clipboard.
+
+---
+
+## For developers
+
+### Run from source
+
+Double-click **Start EasyClipboard.cmd**, or run:
 
 ```powershell
 .\scripts\run.ps1
 ```
 
-The current workspace includes a local .NET 10 SDK. Other machines need the **.NET 10 SDK** for the source build. First restore needs internet; normal transfers do not.
+You need the **.NET 10 SDK** (the scripts use a local copy in `.tools/` if present). The first restore needs internet. With **Developer mode** unlocked, **Restart EasyClipboard** in the tray rebuilds and reopens a source build without touching your data.
 
-1. Connect the PC and iPhone to the same Tailscale network.
-2. Select the laptop's Tailscale address, click **Start receiving**, and open **Pairing / setup**.
-3. Follow [the native Shortcut setup](docs/shortcut.md) with the displayed URL and your own pairing key.
-4. Copy text or a photo on iPhone, run **Send to Laptop**, and paste on Windows.
+Run the checks with:
 
-If the iPhone cannot reach the receiver, follow the [Tailscale troubleshooting and scoped firewall instructions](docs/tailscale.md).
+```powershell
+.\scripts\check.ps1
+```
 
-## Package a Windows release
+### Package and publish a release
 
-Run `pwsh -File scripts/package.ps1 -Version 0.2.1` to build an x64 installer and portable ZIP with .NET included. The installer and update files are written under `artifacts/<version>/release`.
+```powershell
+pwsh -File scripts/package.ps1 -Version 0.2.12
+```
 
-To enable updates, pass `-UpdateFeed https://updates.example.com/easyclipboard/` with a trusted HTTPS folder you control. Publish the generated update manifest and full package to that folder for each release. An installed app checks on launch and asks before downloading and restarting. Builds without a configured feed can be upgraded by running a newer installer. Pairing and history stay under `%LOCALAPPDATA%\EasyClipboard`, separate from the app installation. Release files built without a signing certificate are unsigned.
+This builds a self-contained x64 **Setup** and portable ZIP under `artifacts/<version>/release`. Run Setup as your normal Windows user; if it fails, extract the portable ZIP and run `EasyClipboard.exe`, or run Setup with `--log <file>` for diagnostics.
 
-## What the prototype includes
+**Updates.** Each build looks for updates on this repository's GitHub Releases (taken from the `origin` remote), or on `-UpdateFeed <https URL>`. Installed copies check on launch and ask before downloading. A Setup file installs the version it was built from; an older Setup reaches the newest version on first launch. A GitHub feed needs the repository to be public, since no token is built into the app.
 
-- Text with Unicode, emoji, and multiple lines; real PNG image data on the Windows clipboard.
-- One revocable 256-bit pairing key. **Home HTTP is deliberately unencrypted**, including the key in transit, as selected for this prototype. Optional home HTTPS and private-hotspot HTTPS modes remain available with certificate setup.
-- A tray menu, pause receiving, history previews, Copy Again, deletion, clear history, and storage limits.
-- Local history under `%LOCALAPPDATA%\EasyClipboard`, encrypted with Windows DPAPI for the current user. Defaults: 30 days, 200 entries, 256 MB. Change these in **Storage limits**.
-- Versioned requests, size/decoding checks, safe atomic files, and persistent retry receipts while entries are retained.
-- Optional basic HTML formatting with plain-text fallback; the supplied Shortcut recipe sends reliable plain text.
+To publish, set `$env:GITHUB_TOKEN`, then add `-Publish`. The release is uploaded as `v<version>`. Builds without a signing certificate are unsigned.
 
-Closing the window keeps the app in the tray. Use **Quit** in the tray to stop it. Nothing is typed or pasted automatically. No clipboard monitoring runs on iPhone. Win+V behavior depends on Windows settings and item compatibility; ordinary Ctrl+V is the target.
+### More detail
 
-## Validation and limits
+| Topic | Doc |
+| --- | --- |
+| Protocol, storage, and clipboard design | [architecture.md](docs/architecture.md) |
+| Building the Shortcuts by hand | [shortcut.md](docs/shortcut.md), [get-from-pc.md](docs/get-from-pc.md) |
+| Tailscale networking and firewall troubleshooting | [tailscale.md](docs/tailscale.md) |
+| Home Wi-Fi and hotspot modes (Developer mode) | [setup.md](docs/setup.md), [connection-options.md](docs/connection-options.md) |
+| Third-party components | [dependencies.md](docs/dependencies.md) |
 
-The build passes without warnings. **103 local checks and restart cycles pass**, including actual loopback HTTP/HTTPS requests, Tailscale routing policy, authentication diagnostics, malformed input, text/image persistence, retries, interrupted uploads, retention, and five same-port receiver restarts. Pixel-by-pixel PNG checks at 72, 96, 144, 192, and 300 DPI guard against resizing image content inside an unchanged canvas. 22 reverse-transfer checks cover permission, fresh content, raw text/PNG responses, cancellation, and revocation without changing the PC clipboard or history. A separate local binding/authentication check passed on the laptop's actual Tailscale interface. The Windows clipboard is simulated in these checks.
+Developer mode (**Settings → Developer mode**) unlocks home Wi-Fi and hotspot modes. It is a convenience switch for experiments, not a security control. The pairing key is what protects transfers. Home HTTP mode sends content and the key unencrypted on your local network; Tailscale mode carries the same HTTP inside Tailscale's encrypted tunnel.
 
-Native Shortcut text and photo transfers have been tested on home Wi-Fi. Intermittent image-upload timeouts remain under investigation. The current pipeline converts images to PNG and Base64 before HTTP upload. Cellular connectivity through Shadowrocket, private hotspot startup, and live clipboard contention require separate device testing.
+### Status
 
-Home HTTP receives authenticated transfers on port 47831 without a certificate profile. It is intended for this house-network prototype, with the accepted privacy tradeoff. Optional HTTPS receives on 47832 and uses 47831 only for public certificate onboarding; HTTP transfers are rejected in those modes. No TLS verification is disabled.
+The automated checks cover real loopback HTTP/HTTPS requests, authentication, malformed input, text and image persistence, retries, retention, and reverse transfers, with the Windows clipboard simulated. Text and photo transfers have been tested from an iPhone on home Wi-Fi. Cellular use, hotspot mode, and installer upgrades still need device testing.
 
-Run checks with `./scripts/check.ps1`. Architecture, protocol, and build notes are in [docs/architecture.md](docs/architecture.md). An earlier diagnostic-only prototype remains available through `./scripts/run-hotspot-test.ps1`; do not run both apps at once.
+No real pairing keys, certificates, or clipboard contents belong in the repository. **License selection remains deferred.**
 
-No real pairing keys, certificates, or clipboard contents belong in the repository. Test data and tools stay in ignored `.tools/`. No remote repository has been created. **License selection remains deferred.** See [dependency notes](docs/dependencies.md) before distributing binaries.
+<sub>EasyClipboard is not affiliated with or endorsed by Tailscale Inc. or Apple Inc.</sub>

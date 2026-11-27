@@ -22,7 +22,7 @@ internal sealed class HistoryList : ScrollableControl
         AutoScroll = true;
         TabStop = true;
         BackColor = MainWindow.Surface;
-        ForeColor = SystemInformation.HighContrast ? SystemColors.WindowText : Color.White;
+        ForeColor = MainWindow.TextColor;
         AccessibleName = "Saved clipboard history";
         AccessibleRole = AccessibleRole.List;
         _animation.Tick += (_, _) => AdvanceScroll();
@@ -56,7 +56,7 @@ internal sealed class HistoryList : ScrollableControl
         var last = Math.Min(_entries.Count, (Offset + ClientSize.Height + RowHeight - 1) / RowHeight);
         var highContrast = SystemInformation.HighContrast;
         var selection = highContrast ? SystemColors.Highlight : MainWindow.SelectionColor;
-        var selectionText = highContrast ? SystemColors.HighlightText : Color.White;
+        var selectionText = highContrast ? SystemColors.HighlightText : MainWindow.TextColor;
         using var selectionBrush = new SolidBrush(selection);
         for (var index = first; index < last; index++)
         {
@@ -150,6 +150,16 @@ internal sealed class HistoryList : ScrollableControl
         if (e.Button != MouseButtons.Left) return;
         Focus();
         SelectEntry((Offset + e.Y) / RowHeight);
+    }
+
+    public void Select(Guid id)
+    {
+        var index = _entries.FindIndex(entry => entry.Id == id);
+        if (index < 0) return;
+        SelectEntry(index);
+        if (index * RowHeight < Offset || (index + 1) * RowHeight > Offset + ClientSize.Height)
+            SetOffset(index * RowHeight - ClientSize.Height / 3);
+        _targetOffset = Offset;
     }
 
     private void SelectEntry(int index)

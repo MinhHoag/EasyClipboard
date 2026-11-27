@@ -50,6 +50,6 @@ public sealed class ClipboardExport(IClipboardSource source)
     private void EnsureEnabled(long generation)
     {
         if (!Enabled || generation != Interlocked.Read(ref _generation))
-            throw new TransferError(403, "clipboard_export_disabled", "Enable 'Allow phone to fetch PC clipboard' in EasyClipboard first.");
+            throw new TransferError(403, "clipboard_export_disabled", "Turn on Settings → Phone fetch in EasyClipboard first.");
     }
 }

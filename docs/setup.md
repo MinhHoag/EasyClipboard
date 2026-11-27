@@ -6,7 +6,7 @@ Run **Start EasyClipboard.cmd** or `./scripts/run.ps1` for a source build. The a
 
 To launch at sign-in and start receiving over Tailscale, right-click the tray icon and select **Start with Windows**. Select it again to remove the startup entry.
 
-To use home HTTP, stop the receiver and open **Settings → Unlock developer mode**, then choose **Home Wi-Fi / LAN — HTTP**. Keep both devices on the same trusted network. Select the laptop's Wi-Fi or Ethernet address, click **Start receiving**, then **Pairing / setup**. Follow [shortcut.md](shortcut.md) with the displayed HTTP URL and key. HTTP sends the content and pairing key unencrypted. Developer mode locks when the app quits.
+To use home HTTP, stop the receiver and unlock **Developer mode** in Settings, then choose **Home Wi-Fi / LAN (HTTP)**. Keep both devices on the same trusted network. Select the laptop's Wi-Fi or Ethernet address, click **Start receiving**, then **Pairing / setup**. Follow [shortcut.md](shortcut.md) with the displayed HTTP URL and key. HTTP sends the content and pairing key unencrypted. **Remember on this PC** keeps developer tools visible on future launches. **Lock** clears that preference, and every launch still defaults to Tailscale.
 
 If no addresses are listed, connect to the home network and click **Refresh networks**. Multiple entries can include virtual/VPN adapters; choose the physical Wi-Fi/Ethernet address your phone can reach. The receiver binds only that address and stops accepting requests if it disappears. Update the Shortcut and firewall rule if DHCP changes it; a router DHCP reservation can keep it stable. No router port forwarding is needed.
 

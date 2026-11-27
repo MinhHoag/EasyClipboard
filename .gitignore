@@ -5,6 +5,7 @@
 artifacts/
 output/
 .nfc-video-tools/
+floorplan/
 TestResults/
 .vs/
 *.user

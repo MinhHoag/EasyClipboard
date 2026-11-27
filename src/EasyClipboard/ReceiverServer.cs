@@ -18,6 +18,13 @@ public sealed record ReceiverActivity(DateTimeOffset At, string Operation, bool 
 public sealed class ReceiverServer : IAsyncDisposable
 {
     public const int SetupPort = 47831;
+    // Where the phone sends to and receives from. The old /v1/transfers and /v1/clipboard paths
+    // still answer, so Shortcuts made before the rename keep working.
+    public const string SendPath = "/v1/send-url";
+    public const string ReceivePath = "/v1/receive-url";
+    private static readonly string[] SendPaths = [SendPath, "/v1/transfers"];
+    private static readonly string[] ReceivePaths = [ReceivePath, "/v1/clipboard"];
+    private static bool Is(PathString path, string[] paths) => paths.Any(p => path.Equals(p, StringComparison.OrdinalIgnoreCase));
     public const int TransferPort = 47832;
     private readonly WebApplication _app;
     private readonly X509Certificate2? _certificate;
@@ -65,8 +72,8 @@ public sealed class ReceiverServer : IAsyncDisposable
                 await next(context);
                 return;
             }
-            var operation = context.Request.Method == "POST" && context.Request.Path == "/v1/transfers"
-                ? "Transfer" : context.Request.Method == "GET" && context.Request.Path == "/v1/clipboard" ? "PC clipboard fetch"
+            var operation = context.Request.Method == "POST" && Is(context.Request.Path, SendPaths)
+                ? "Transfer" : context.Request.Method == "GET" && Is(context.Request.Path, ReceivePaths) ? "PC clipboard fetch"
                 : context.Request.Method == "GET" && context.Request.Path == "/" ? "Page check" : "Other request";
             var count = Interlocked.Increment(ref _peerRequestCount);
             var started = System.Diagnostics.Stopwatch.GetTimestamp();
@@ -98,7 +105,7 @@ public sealed class ReceiverServer : IAsyncDisposable
             catch (OutOfMemoryException) { var error = ImageResources.InsufficientMemory(); await Error(context, error.Status, error.Code, error.Message); }
             catch (JsonException) { await Error(context, 400, "invalid_json", "Provide a version 1 transfer JSON object."); }
             catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested) { /* Incomplete upload; no clipboard operation began. */ }
-            catch (Exception) { await Error(context, 500, "receiver_error", context.Request.Path == "/v1/clipboard"
+            catch (Exception) { await Error(context, 500, "receiver_error", Is(context.Request.Path, ReceivePaths)
                 ? "The PC clipboard could not be read. Try copying the item again."
                 : "The receiver could not complete the transfer. Check local history and retry the same transferId."); }
         });
@@ -113,7 +120,7 @@ public sealed class ReceiverServer : IAsyncDisposable
             : allowHomeHttp
             ? "EasyClipboard home-network prototype is reachable. Transfers require the pairing key. HTTP content and the key are unencrypted. No iPhone certificate profile is needed."
             : "EasyClipboard HTTPS prototype. Verify the local root certificate before trusting it. See the Shortcut setup guide. This page contains no pairing credentials."));
-        _app.MapGet("/v1/clipboard", async (HttpContext context) =>
+        RequestDelegate fetch = async context =>
         {
             if (!HttpMethods.IsGet(context.Request.Method))
                 throw new TransferError(405, "get_required", "Use GET to fetch the PC clipboard.");
@@ -129,8 +136,9 @@ public sealed class ReceiverServer : IAsyncDisposable
             if (content.ContentType == "image/png")
                 context.Response.Headers.ContentDisposition = "inline; filename=\"clipboard.png\"";
             await context.Response.Body.WriteAsync(content.Bytes, context.RequestAborted);
-        });
-        _app.MapPost("/v1/transfers", async (HttpContext context) =>
+        };
+        foreach (var path in ReceivePaths) _app.MapGet(path, fetch);
+        RequestDelegate send = async context =>
         {
             if (!context.Request.IsHttps && !allowHomeHttp)
             {
@@ -169,7 +177,8 @@ public sealed class ReceiverServer : IAsyncDisposable
                 await context.Response.CompleteAsync();
             }
             finally { _uploadGate.Release(); }
-        });
+        };
+        foreach (var path in SendPaths) _app.MapPost(path, send);
     }
 
     private void ReportActivity(ReceiverActivity activity)

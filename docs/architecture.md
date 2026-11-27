@@ -18,9 +18,11 @@ flowchart LR
 
 ## Protocol v1
 
-Home HTTP: `POST http://<laptop-IP>:47831/v1/transfers`, `Authorization: Bearer <256-bit-key>`, `Content-Type: application/json`. This mode was explicitly selected to avoid an iPhone profile and accepts unencrypted content/key transport. It binds only the selected local interface/address and serves no certificate profile.
+The phone sends to `/v1/send-url` and receives from `/v1/receive-url`. The earlier names `/v1/transfers` and `/v1/clipboard` still answer, so older Shortcuts keep working.
 
-Optional HTTPS: `POST https://<local-IP>:47832/v1/transfers`, with the same headers. In HTTPS modes, 47831 serves public onboarding only and rejects transfers with 426. The API defaults to HTTPS unless `allowHomeHttp: true` is explicitly passed; the UI defaults to the chosen home HTTP mode.
+Home HTTP: `POST http://<laptop-IP>:47831/v1/send-url`, `Authorization: Bearer <256-bit-key>`, `Content-Type: application/json`. This mode was explicitly selected to avoid an iPhone profile and accepts unencrypted content/key transport. It binds only the selected local interface/address and serves no certificate profile.
+
+Optional HTTPS: `POST https://<local-IP>:47832/v1/send-url`, with the same headers. In HTTPS modes, 47831 serves public onboarding only and rejects transfers with 426. The API defaults to HTTPS unless `allowHomeHttp: true` is explicitly passed; the UI defaults to the chosen home HTTP mode.
 
 Text:
 
@@ -45,7 +47,7 @@ Images have no fixed file-size, megapixel or side-length cutoffs and are never d
 
 ### On-demand PC-to-phone fetch
 
-`GET /v1/clipboard` uses the same network and Bearer authentication checks. **Allow phone to fetch PC clipboard** is checked when receiving starts and can be disabled for that session. Successful responses are raw UTF-8 plain text or sanitized PNG with `Cache-Control: no-store`; failures retain the versioned JSON error envelope. HEAD/POST do not read the clipboard. HTTPS-only modes reject HTTP fetches.
+`GET /v1/receive-url` uses the same network and Bearer authentication checks. **Phone fetch** (Settings, on by default) turns fetching on when receiving starts; turning it off revokes access immediately and is remembered. Successful responses are raw UTF-8 plain text or sanitized PNG with `Cache-Control: no-store`; failures retain the versioned JSON error envelope. HEAD/POST do not read the clipboard. HTTPS-only modes reject HTTP fetches.
 
 `ClipboardExport` permits only one concurrent read, rechecks permission before and after reading/normalization, and invalidates an in-flight request when permission is withdrawn even if re-enabled. `WindowsClipboard.ReadAsync` dispatches to the UI's STA thread, bounds waiting, checks the clipboard sequence for a concurrent change, and reads only PNG/bitmap/text. It does not resolve file paths, HTML resources or URLs. The source shares existing image/text validation limits. No reverse-transfer contents are persisted and the PC clipboard is not changed. Cancelled requests release the read gate; a native clipboard owner that blocks inside an OS/OLE call cannot be forcibly interrupted safely.
 

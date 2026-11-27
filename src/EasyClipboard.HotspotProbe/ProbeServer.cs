@@ -12,7 +12,7 @@ namespace EasyClipboard.HotspotProbe;
 public sealed record HotspotBinding(string InterfaceId, string InterfaceName, IPAddress Address, IPAddress Mask)
 {
     public bool IsTailscale { get; init; }
-    public override string ToString() => $"{InterfaceName} — {Address}";
+    public override string ToString() => $"{InterfaceName} ({Address})";
 
     public static bool IsTailscaleV4(IPAddress address)
     {

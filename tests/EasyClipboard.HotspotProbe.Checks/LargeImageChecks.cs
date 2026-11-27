@@ -47,7 +47,7 @@ internal static class LargeImageChecks
             if (noise && (bytes.Length <= 12 * 1024 * 1024 || base64.Length <= 18 * 1024 * 1024))
                 throw new Exception("The large-file fixture did not cross both old byte limits.");
             var request = new TransferRequest(1, Guid.NewGuid(), "image/png", DataBase64: base64);
-            using var response = await client.PostAsJsonAsync("/v1/transfers", request, LocalFiles.Json);
+            using var response = await client.PostAsJsonAsync("/v1/send-url", request, LocalFiles.Json);
             if (!response.IsSuccessStatusCode) throw new Exception($"FAIL: {label}: {await response.Content.ReadAsStringAsync()}");
             if (sink.Item?.Id != request.TransferId) throw new Exception("Large image never reached the clipboard sink.");
             AssertPixels(original, sink.Item.Png!);
@@ -61,7 +61,7 @@ internal static class LargeImageChecks
             if (noise)
             {
                 source.Png = bytes;
-                using var fetched = await client.GetAsync("/v1/clipboard");
+                using var fetched = await client.GetAsync("/v1/receive-url");
                 if (!fetched.IsSuccessStatusCode) throw new Exception("Full-size PNG could not be fetched back from PC.");
                 AssertPixels(original, await fetched.Content.ReadAsByteArrayAsync());
                 source.Png = null;
@@ -76,7 +76,7 @@ internal static class LargeImageChecks
         BinaryPrimitives.WriteUInt32BigEndian(forged.AsSpan(16), int.MaxValue);
         BinaryPrimitives.WriteUInt32BigEndian(forged.AsSpan(20), int.MaxValue);
         var before = sink.Item;
-        using (var response = await client.PostAsJsonAsync("/v1/transfers",
+        using (var response = await client.PostAsJsonAsync("/v1/send-url",
             new TransferRequest(1, Guid.NewGuid(), "image/png", DataBase64: Convert.ToBase64String(forged))))
             if (response.StatusCode != HttpStatusCode.ServiceUnavailable || sink.Item != before ||
                 !(await response.Content.ReadAsStringAsync()).Contains("image_memory_unavailable"))
@@ -88,11 +88,11 @@ internal static class LargeImageChecks
         using var pending = new TcpClient();
         await pending.ConnectAsync(IPAddress.Loopback, port);
         var stream = pending.GetStream();
-        await stream.WriteAsync(Encoding.ASCII.GetBytes($"POST /v1/transfers HTTP/1.1\r\nHost: localhost\r\nAuthorization: Bearer {identity.Token}\r\nContent-Type: application/json\r\nContent-Length: 100000\r\n\r\n{{\"version\":1,"));
+        await stream.WriteAsync(Encoding.ASCII.GetBytes($"POST /v1/send-url HTTP/1.1\r\nHost: localhost\r\nAuthorization: Bearer {identity.Token}\r\nContent-Type: application/json\r\nContent-Length: 100000\r\n\r\n{{\"version\":1,"));
         var busySeen = false;
         for (var attempt = 0; attempt < 50; attempt++)
         {
-            using var response = await client.PostAsJsonAsync("/v1/transfers", new TransferRequest(1, Guid.NewGuid(), "text/plain", "admission check"));
+            using var response = await client.PostAsJsonAsync("/v1/send-url", new TransferRequest(1, Guid.NewGuid(), "text/plain", "admission check"));
             if (response.StatusCode == HttpStatusCode.TooManyRequests) { busySeen = true; break; }
             await Task.Delay(20);
         }
@@ -101,7 +101,7 @@ internal static class LargeImageChecks
         var recovered = false;
         for (var attempt = 0; attempt < 50; attempt++)
         {
-            using var response = await client.PostAsJsonAsync("/v1/transfers", new TransferRequest(1, Guid.NewGuid(), "text/plain", "after abort"));
+            using var response = await client.PostAsJsonAsync("/v1/send-url", new TransferRequest(1, Guid.NewGuid(), "text/plain", "after abort"));
             if (response.IsSuccessStatusCode) { recovered = true; break; }
             await Task.Delay(20);
         }

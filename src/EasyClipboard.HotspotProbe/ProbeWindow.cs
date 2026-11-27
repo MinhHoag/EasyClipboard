@@ -14,7 +14,7 @@ internal sealed class ProbeWindow : Form
 
     public ProbeWindow()
     {
-        Text = "EasyClipboard — private hotspot test";
+        Text = "EasyClipboard private hotspot test";
         AutoScaleMode = AutoScaleMode.Dpi;
         ClientSize = new Size(750, 570);
         MinimumSize = new Size(650, 560);

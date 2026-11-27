@@ -12,14 +12,13 @@
     <use href="#dot" x="14" y="50"/><use href="#dot" x="23" y="50"/><use href="#dot" x="32" y="50"/><use href="#dot" x="41" y="50"/><use href="#dot" x="50" y="50"/>
   </g>
   <g fill="#505050">
-    <use href="#dot" x="23" y="23"/><use href="#dot" x="41" y="23"/>
-    <use href="#dot" x="23" y="41"/><use href="#dot" x="41" y="41"/>
+    <use href="#dot" x="23" y="23"/><use href="#dot" x="32" y="23"/>
+    <use href="#dot" x="23" y="41"/><use href="#dot" x="32" y="41"/>
   </g>
   <g fill="#FFFFFF">
-    <use href="#dot" x="32" y="23"/>
-    <use href="#dot" x="14" y="32"/><use href="#dot" x="23" y="32"/><use href="#dot" x="32" y="32"/><use href="#dot" x="41" y="32"/>
-    <use href="#dot" x="32" y="41"/>
+    <use href="#dot" x="14" y="32"/><use href="#dot" x="23" y="32"/><use href="#dot" x="32" y="32"/><use href="#dot" x="41" y="32"/><use href="#dot" x="50" y="32"/>
+    <use href="#dot" x="41" y="23"/>
+    <use href="#dot" x="41" y="41"/>
   </g>
-  <use href="#dot" x="50" y="32" fill="#333333"/>
   </g>
 </svg>

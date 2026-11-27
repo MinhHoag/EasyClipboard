@@ -33,7 +33,7 @@ internal static class ClipboardExportChecks
         await server.StartAsync();
         using var client = new HttpClient(new SocketsHttpHandler { UseProxy = false, AllowAutoRedirect = false })
             { BaseAddress = new Uri($"http://127.0.0.1:{setupPort}"), Timeout = TimeSpan.FromSeconds(5) };
-        async Task<HttpResponseMessage> Get() => await client.GetAsync("/v1/clipboard");
+        async Task<HttpResponseMessage> Get() => await client.GetAsync("/v1/receive-url");
         using (var response = await Get()) Check(response.StatusCode == HttpStatusCode.Unauthorized && source.Calls == 0, "fetch rejects missing auth without reading clipboard");
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", identity.Token);
         using (var response = await Get()) Check(response.StatusCode == HttpStatusCode.Forbidden && source.Calls == 0, "fetch starts disabled even with valid credentials");
@@ -47,6 +47,7 @@ internal static class ClipboardExportChecks
         }
         source.Current = new(Text: "New clipboard value");
         using (var response = await Get()) Check(await response.Content.ReadAsStringAsync() == source.Current.Text, "each fetch reads fresh clipboard content");
+        using (var response = await client.GetAsync("/v1/clipboard")) Check(response.IsSuccessStatusCode && await response.Content.ReadAsStringAsync() == source.Current.Text, "the old /v1/clipboard path still answers older Shortcuts");
         using (var image = new Bitmap(9, 7))
         {
             image.SetResolution(144, 144);
@@ -104,8 +105,8 @@ internal static class ClipboardExportChecks
         identity.RotateToken();
         using (var response = await Get()) Check(response.StatusCode == HttpStatusCode.Unauthorized && source.Calls == readCount, "revoked credentials cannot read PC clipboard");
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", identity.Token);
-        using (var response = await client.PostAsync("/v1/clipboard", null)) Check(response.StatusCode == HttpStatusCode.MethodNotAllowed && source.Calls == readCount, "fetch does not expose a write or POST action");
-        using (var request = new HttpRequestMessage(HttpMethod.Head, "/v1/clipboard"))
+        using (var response = await client.PostAsync("/v1/receive-url", null)) Check(response.StatusCode == HttpStatusCode.MethodNotAllowed && source.Calls == readCount, "fetch does not expose a write or POST action");
+        using (var request = new HttpRequestMessage(HttpMethod.Head, "/v1/receive-url"))
         using (var response = await client.SendAsync(request)) Check(response.StatusCode == HttpStatusCode.MethodNotAllowed && source.Calls == readCount, "HEAD does not read the clipboard");
 
         var insecurePort = FreePort();
@@ -116,7 +117,7 @@ internal static class ClipboardExportChecks
         await httpsOnly.StartAsync();
         using var insecure = new HttpClient { BaseAddress = new Uri($"http://127.0.0.1:{insecurePort}") };
         insecure.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", identity.Token);
-        using (var response = await insecure.GetAsync("/v1/clipboard")) Check(response.StatusCode == HttpStatusCode.UpgradeRequired && source.Calls == readCount, "HTTPS modes reject plaintext fetch before reading clipboard");
+        using (var response = await insecure.GetAsync("/v1/receive-url")) Check(response.StatusCode == HttpStatusCode.UpgradeRequired && source.Calls == readCount, "HTTPS modes reject plaintext fetch before reading clipboard");
         Console.WriteLine($"{passed} PC-to-phone checks passed; clipboard source/sink are simulated.");
     }
 

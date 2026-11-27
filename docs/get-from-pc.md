@@ -6,8 +6,8 @@ Copy on Windows, tap **Get from PC** on iPhone, then paste. This is an on-demand
 
 1. Quit EasyClipboard from its tray menu and reopen **Start EasyClipboard.cmd** to load the update.
 2. Select your working network/mode and click **Start receiving**.
-3. **Allow phone to fetch PC clipboard** turns on when receiving starts. Stop, Quit, or unchecking it revokes access. Disabling and re-enabling also invalidates an older in-flight fetch.
-4. Use the **Get from PC URL** displayed in the setup box. It uses the same address and port as Send to Laptop, with `/v1/clipboard` instead of `/v1/transfers`. Keep using the proven Wi-Fi connection; this feature does not resolve the separate Shadowrocket cellular problem.
+3. Fetching turns on when receiving starts, unless **Settings → Phone fetch** is turned off. Stop, Quit, or turning it off revokes access. Disabling and re-enabling also invalidates an older in-flight fetch.
+4. Use the **Get from PC URL** displayed in the setup box. It uses the same address and port as Send to Laptop, with `/v1/receive-url` instead of `/v1/send-url`. Keep using the proven Wi-Fi connection; this feature does not resolve the separate Shadowrocket cellular problem.
 
 The existing HTTP/HTTPS/Tailscale transport choice applies in both directions. Home HTTP carries content and the pairing key unencrypted on the LAN, as in the existing prototype. HTTPS modes require HTTPS for fetching, and Tailscale mode carries HTTP inside the tunnel. The download endpoint requires the same `Authorization: Bearer <pairing-key>` header as sending. Do not put credentials in the URL or share a Shortcut containing them.
 

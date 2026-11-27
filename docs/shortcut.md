@@ -9,9 +9,9 @@ The user has since reported successful home HTTP text/photo transfers after the 
 This is the selected prototype workflow:
 
 1. Connect the iPhone and laptop to the same house network. A laptop connected by Ethernet to that router also works if the router permits communication with Wi-Fi clients.
-2. Launch EasyClipboard, leave **Home Wi-Fi / LAN — HTTP** selected, select the laptop's active Wi-Fi/Ethernet address, and click **Start receiving**.
+2. Launch EasyClipboard, leave **Home Wi-Fi / LAN (HTTP)** selected, select the laptop's active Wi-Fi/Ethernet address, and click **Start receiving**.
 3. Open **Pairing / setup**. Use the **Shortcut URL** from the main window and the `Bearer <key>` header from the pairing window.
-4. Continue with **Create the Shortcut** below. Use `http://<laptop-IP>:47831/v1/transfers` exactly as displayed. Do not install a profile or enable SSH for this mode.
+4. Continue with **Create the Shortcut** below. Use `http://<laptop-IP>:47831/v1/send-url` exactly as displayed. Do not install a profile or enable SSH for this mode.
 
 The pairing key is still required and revocable. HTTP sends it and clipboard content unencrypted over the network; this is the explicitly selected simpler prototype mode. Local storage remains DPAPI-encrypted. Don't publish the key or share a Shortcut containing it.
 
@@ -19,7 +19,7 @@ If the laptop's address changes, update the Shortcut URL and scoped firewall rul
 
 ## Optional HTTPS certificate setup — skip for home HTTP
 
-1. For home HTTPS, choose **Home Wi-Fi / LAN — HTTPS**, select the home interface, and **Start receiving**. For private hotspot HTTPS, choose that mode and **Start hotspot**, keeping Windows Mobile Hotspot off. Open **Pairing / setup**.
+1. For home HTTPS, choose **Home Wi-Fi / LAN (HTTPS)**, select the home interface, and **Start receiving**. For private hotspot HTTPS, choose that mode and **Start hotspot**, keeping Windows Mobile Hotspot off. Open **Pairing / setup**.
 2. For home HTTPS, keep the iPhone on the house Wi-Fi. For private hotspot HTTPS, join the exact Wi-Fi name/password from the app. Stay connected if iOS reports no internet; that private link does not forward internet.
 3. In Safari, open the **Certificate install** URL shown on Windows: `http://<AP-IP>:47831/install.mobileconfig`. It contains only a public root certificate. HTTP is used for initial public onboarding material, not transfers.
 4. Before trusting it, inspect the certificate actually contained in that downloaded profile. Compare its **entire SHA-256 fingerprint** with **Pairing / setup** on the laptop. A matching name is insufficient. The certificate-detail UI varies by iOS version. If yours does not expose a usable fingerprint, do not guess: securely deliver and verify the exact profile through an already trusted file-transfer method first. Verifying a separately downloaded `.cer` does not authenticate a different profile download.
@@ -48,7 +48,7 @@ Create a Shortcut named **Send to Laptop**. Use magic variables for values below
    - **Convert Image**, input `Item`, format **PNG**. Disable **Preserve Metadata** if shown. This explicitly converts actual HEIC/JPEG image input into the receiver's PNG format.
    - **Base64 Encode**, input **Converted Image**, mode **Encode**, **Line Breaks: None**.
    - **Set Variable** `Payload` to the encoded output.
-   - **Get Contents of URL**, using the exact **Shortcut URL** shown on Windows: `http://<laptop-IP>:47831/v1/transfers` in home HTTP mode, or the displayed HTTPS URL in HTTPS modes. Set method **POST**. Under **Headers**, set `Authorization` to `Bearer <key>` and `Content-Type` to `application/json` if not already set by the JSON body action.
+   - **Get Contents of URL**, using the exact **Shortcut URL** shown on Windows: `http://<laptop-IP>:47831/v1/send-url` in home HTTP mode, or the displayed HTTPS URL in HTTPS modes. Set method **POST**. Under **Headers**, set `Authorization` to `Bearer <key>` and `Content-Type` to `application/json` if not already set by the JSON body action.
    - Under **Request Body → JSON**, add the following typed fields:
 
      | Key | Shortcuts field type | Value |

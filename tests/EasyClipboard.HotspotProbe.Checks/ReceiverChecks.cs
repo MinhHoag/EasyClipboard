@@ -90,12 +90,12 @@ internal static class ReceiverChecks
                 if (!page.IsSuccessStatusCode) throw new Exception("Page check failed after restart.");
                 await VerifyActivity("Page check", 200, 1);
                 peer.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", identity.Token);
-                using var transfer = await peer.PostAsJsonAsync("/v1/transfers",
+                using var transfer = await peer.PostAsJsonAsync("/v1/send-url",
                     new TransferRequest(1, Guid.NewGuid(), "text/plain", "Restart test"));
                 if (!transfer.IsSuccessStatusCode) throw new Exception("Authenticated transfer failed after restart.");
                 await VerifyActivity("Transfer", 200, 2);
                 peer.DefaultRequestHeaders.Authorization = null;
-                using var denied = await peer.PostAsJsonAsync("/v1/transfers",
+                using var denied = await peer.PostAsJsonAsync("/v1/send-url",
                     new TransferRequest(1, Guid.NewGuid(), "text/plain", "Must not save"));
                 if (denied.StatusCode != HttpStatusCode.Unauthorized) throw new Exception("Restart bypassed authentication.");
                 await VerifyActivity("Transfer", 401, 3);
@@ -128,7 +128,7 @@ internal static class ReceiverChecks
         if (!page.Contains("Tailscale receiver is reachable")) throw new Exception("Tailscale binding check failed.");
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", identity.Token);
         using var invalid = new StringContent("{broken", Encoding.UTF8, "application/json");
-        var response = await client.PostAsync("/v1/transfers", invalid);
+        var response = await client.PostAsync("/v1/send-url", invalid);
         if (response.StatusCode != HttpStatusCode.BadRequest) throw new Exception("Tailscale authentication check failed.");
         Console.WriteLine("PASS: local listener and authenticated request on actual Tailscale interface. This does not test an iPhone or remote tunnel.");
     }
@@ -179,7 +179,7 @@ internal static class ReceiverChecks
         using var http = new HttpClient { BaseAddress = new Uri($"http://127.0.0.1:{setupPort}"), Timeout = TimeSpan.FromSeconds(5) };
         var text = "Hello 世界 👋🏽\nSecond line\r\nآخر سطر";
         var request = new TransferRequest(1, Guid.NewGuid(), "text/plain", text);
-        async Task<HttpResponseMessage> Send(TransferRequest value) => await client.PostAsJsonAsync("/v1/transfers", value, LocalFiles.Json);
+        async Task<HttpResponseMessage> Send(TransferRequest value) => await client.PostAsJsonAsync("/v1/send-url", value, LocalFiles.Json);
 
         var missingAuth = await Send(request);
         Check(missingAuth.StatusCode == HttpStatusCode.Unauthorized, "HTTPS rejects missing credentials");
@@ -189,7 +189,7 @@ internal static class ReceiverChecks
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", new string('0', 64));
         Check((await Send(request)).StatusCode == HttpStatusCode.Unauthorized, "HTTPS rejects invalid credentials");
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", identity.Token);
-        Check((await http.PostAsJsonAsync("/v1/transfers", request)).StatusCode == HttpStatusCode.UpgradeRequired, "HTTP cannot receive transfers");
+        Check((await http.PostAsJsonAsync("/v1/send-url", request)).StatusCode == HttpStatusCode.UpgradeRequired, "HTTP cannot receive transfers");
         Check((await http.GetByteArrayAsync("/root.cer")).SequenceEqual(identity.Authority.RawData), "onboarding sends only public certificate");
         var profile = await http.GetStringAsync("/install.mobileconfig");
         Check(!profile.Contains(identity.Token) && !profile.Contains(identity.WifiPassword), "profile contains no pairing or Wi-Fi secrets");
@@ -292,7 +292,7 @@ internal static class ReceiverChecks
             "clearing duplicates keeps the newest identical text and PNG, distinct formatting, and pending transfers");
 
         using var malformed = new StringContent("{broken", Encoding.UTF8, "application/json");
-        Check((await client.PostAsync("/v1/transfers", malformed)).StatusCode == HttpStatusCode.BadRequest, "malformed JSON returns a clear error");
+        Check((await client.PostAsync("/v1/send-url", malformed)).StatusCode == HttpStatusCode.BadRequest, "malformed JSON returns a clear error");
         var oldToken = identity.Token;
         identity.RotateToken();
         Check(!identity.Authorizes("Bearer " + oldToken), "revocation invalidates existing key");
@@ -306,7 +306,7 @@ internal static class ReceiverChecks
             await socket.ConnectAsync(IPAddress.Loopback, transferPort);
             using var tls = new SslStream(socket.GetStream(), false, (_, cert, _, errors) => ValidateCertificate(cert as X509Certificate2, errors));
             await tls.AuthenticateAsClientAsync("127.0.0.1");
-            await tls.WriteAsync(Encoding.ASCII.GetBytes($"POST /v1/transfers HTTP/1.1\r\nHost: localhost\r\nAuthorization: Bearer {identity.Token}\r\nContent-Type: application/json\r\nContent-Length: 100\r\n\r\n{{\""));
+            await tls.WriteAsync(Encoding.ASCII.GetBytes($"POST /v1/send-url HTTP/1.1\r\nHost: localhost\r\nAuthorization: Bearer {identity.Token}\r\nContent-Type: application/json\r\nContent-Length: 100\r\n\r\n{{\""));
         }
         Check(bank.List().Count == 3, "interrupted request adds no successful history");
         bank.Configure(new Preferences(30, 1, 32));
@@ -325,23 +325,25 @@ internal static class ReceiverChecks
         {
             await homeServer.StartAsync();
             using var home = new HttpClient { BaseAddress = new Uri($"http://127.0.0.1:{homePort}"), Timeout = TimeSpan.FromSeconds(5) };
-            Check((await home.PostAsJsonAsync("/v1/transfers", request)).StatusCode == HttpStatusCode.Unauthorized,
+            Check((await home.PostAsJsonAsync("/v1/send-url", request)).StatusCode == HttpStatusCode.Unauthorized,
                 "home HTTP still requires pairing credentials");
             home.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", new string('0', 64));
-            Check((await home.PostAsJsonAsync("/v1/transfers", request)).StatusCode == HttpStatusCode.Unauthorized,
+            Check((await home.PostAsJsonAsync("/v1/send-url", request)).StatusCode == HttpStatusCode.Unauthorized,
                 "home HTTP rejects invalid pairing key");
             home.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", identity.Token);
-            Check((await home.PostAsJsonAsync("/v1/transfers", request)).IsSuccessStatusCode && clipboard.Current?.Text == text,
+            Check((await home.PostAsJsonAsync("/v1/send-url", request)).IsSuccessStatusCode && clipboard.Current?.Text == text,
                 "opted-in home HTTP transfers Unicode text without TLS");
-            Check((await home.PostAsJsonAsync("/v1/transfers", image)).IsSuccessStatusCode && clipboard.Current?.Png is not null,
+            Check((await home.PostAsJsonAsync("/v1/transfers", request with { TransferId = Guid.NewGuid() })).IsSuccessStatusCode && clipboard.Current?.Text == text,
+                "the old /v1/transfers path still accepts transfers from older Shortcuts");
+            Check((await home.PostAsJsonAsync("/v1/send-url", image)).IsSuccessStatusCode && clipboard.Current?.Png is not null,
                 "home HTTP transfers actual photo data");
             Check((await home.GetAsync("/install.mobileconfig")).StatusCode == HttpStatusCode.NotFound,
                 "home HTTP requires and serves no certificate profile");
             var homeCalls = clipboard.Calls;
-            Check((await home.PostAsJsonAsync("/v1/transfers", image)).IsSuccessStatusCode && clipboard.Calls == homeCalls,
+            Check((await home.PostAsJsonAsync("/v1/send-url", image)).IsSuccessStatusCode && clipboard.Calls == homeCalls,
                 "home HTTP retries do not overwrite clipboard");
             homePresent = false;
-            Check((await home.PostAsJsonAsync("/v1/transfers", request)).StatusCode == HttpStatusCode.ServiceUnavailable,
+            Check((await home.PostAsJsonAsync("/v1/send-url", request)).StatusCode == HttpStatusCode.ServiceUnavailable,
                 "home HTTP rejects requests after selected interface disappears");
         }
         Console.WriteLine($"{passed} receiver checks passed. Clipboard sink is simulated; no live iPhone, AP, or Windows paste test was performed.");

@@ -1,6 +1,6 @@
 # Dependencies and packaging
 
-The prototype uses C#/.NET 10, Windows Forms, ASP.NET Core's Kestrel server, and Windows SDK C#/WinRT projections. It uses no QR-code, hotspot utility, test-framework, or clipboard package. Microsoft documentation and its sample informed the API design; sample source was not copied into this project.
+The prototype uses C#/.NET 10, Windows Forms, ASP.NET Core's Kestrel server, and Windows SDK C#/WinRT projections. Third-party NuGet packages: **Velopack** 1.2.161 (installer and updates, MIT) and **QRCoder** 1.9.0 (draws the iPhone setup code in Pairing / setup, MIT, © Raffael Herrmann and Shane Krueger). It uses no hotspot utility, test-framework, or clipboard package. Microsoft documentation and its sample informed the API design; sample source was not copied into this project.
 
 The target is `net10.0-windows10.0.22621.0`. `global.json` specifies SDK 10.0.403 with feature-band roll-forward. The SDK resolved `Microsoft.Windows.SDK.NET.Ref` 10.0.22621.57 in this build. Its metadata requires license acceptance and links the [Windows SDK license](https://aka.ms/WinSDKLicenseURL). Do not assume all SDK components fall under the repository's future source license.
 
