@@ -6,8 +6,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationManifest>../EasyClipboard.HotspotProbe/app.manifest</ApplicationManifest>
+    <ApplicationIcon>../../assets/easyclipboard.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Velopack" Version="1.2.161" />
     <ProjectReference Include="../EasyClipboard.HotspotProbe/EasyClipboard.HotspotProbe.csproj" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>

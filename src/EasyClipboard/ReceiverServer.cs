@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 namespace EasyClipboard;
 
 public sealed record ReceiverActivity(DateTimeOffset At, string Operation, bool Finished, int? StatusCode,
-    int ActiveRequests, long RequestCount);
+    int ActiveRequests, long RequestCount, long ElapsedMilliseconds = 0);
 
 public sealed class ReceiverServer : IAsyncDisposable
 {
@@ -69,6 +69,7 @@ public sealed class ReceiverServer : IAsyncDisposable
                 ? "Transfer" : context.Request.Method == "GET" && context.Request.Path == "/v1/clipboard" ? "PC clipboard fetch"
                 : context.Request.Method == "GET" && context.Request.Path == "/" ? "Page check" : "Other request";
             var count = Interlocked.Increment(ref _peerRequestCount);
+            var started = System.Diagnostics.Stopwatch.GetTimestamp();
             var active = Interlocked.Increment(ref _activePeerRequests);
             ReportActivity(new(DateTimeOffset.Now, operation, false, null, active, count));
             var completed = false;
@@ -77,7 +78,7 @@ public sealed class ReceiverServer : IAsyncDisposable
             {
                 active = Interlocked.Decrement(ref _activePeerRequests);
                 ReportActivity(new(DateTimeOffset.Now, operation, true, completed ? context.Response.StatusCode : null,
-                    active, Interlocked.Read(ref _peerRequestCount)));
+                    active, Interlocked.Read(ref _peerRequestCount), (long)System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds));
             }
         });
         _app.Use(async (context, next) =>
@@ -157,8 +158,15 @@ public sealed class ReceiverServer : IAsyncDisposable
                 // After a complete request is accepted, finishing the save/clipboard transaction is independent
                 // of response delivery. A retry uses the same ID and returns the durable receipt.
                 var duplicate = await transfers.ReceiveAsync(request);
-                await context.Response.WriteAsJsonAsync(new { version = 1, ok = true, transferId = request.TransferId,
+                var receipt = JsonSerializer.SerializeToUtf8Bytes(new { version = 1, ok = true, transferId = request.TransferId,
                     saved = true, clipboardUpdated = true, duplicate });
+                context.Response.ContentType = "application/json; charset=utf-8";
+                context.Response.ContentLength = receipt.Length;
+                // Shortcuts gets an explicitly delimited receipt and a fresh connection
+                // for its next upload, including after the phone changes networks.
+                context.Response.Headers.Connection = "close";
+                await context.Response.Body.WriteAsync(receipt, context.RequestAborted);
+                await context.Response.CompleteAsync();
             }
             finally { _uploadGate.Release(); }
         });

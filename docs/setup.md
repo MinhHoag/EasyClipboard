@@ -2,9 +2,11 @@
 
 For Tailscale, use [tailscale.md](tailscale.md). That mode selects only the Tailscale virtual interface, accepts tailnet peers in `100.64.0.0/10` rather than comparing them to a /32 adapter subnet, and uses HTTP inside the encrypted tunnel. The new firewall option is `-NetworkMode Tailscale` (HTTP transport). Home/private-hotspot instructions follow below.
 
-Run **Start EasyClipboard.cmd** or `./scripts/run.ps1`. The app defaults to **Home Wi-Fi / LAN — HTTP**, with receiving off. First-time build needs the .NET 10 SDK and access to NuGet. The existing workspace has a project-local SDK; transfers need no internet.
+Run **Start EasyClipboard.cmd** or `./scripts/run.ps1` for a source build. The app opens in **Tailscale** mode with receiving off. A source build needs the .NET 10 SDK and first-time NuGet access.
 
-Keep both devices on the house network. Select the laptop's active Wi-Fi/Ethernet address, click **Start receiving**, then **Pairing / setup**. Follow [shortcut.md](shortcut.md) using the displayed HTTP URL and key. No iPhone profile, ESP32, SSH server, or private hotspot is needed for this selected mode. The key remains required, but HTTP content and the key are unencrypted in transit, as accepted for this prototype.
+To launch at sign-in and start receiving over Tailscale, right-click the tray icon and select **Start with Windows**. Select it again to remove the startup entry.
+
+To use home HTTP, stop the receiver and open **Settings → Unlock developer mode**, then choose **Home Wi-Fi / LAN — HTTP**. Keep both devices on the same trusted network. Select the laptop's Wi-Fi or Ethernet address, click **Start receiving**, then **Pairing / setup**. Follow [shortcut.md](shortcut.md) with the displayed HTTP URL and key. HTTP sends the content and pairing key unencrypted. Developer mode locks when the app quits.
 
 If no addresses are listed, connect to the home network and click **Refresh networks**. Multiple entries can include virtual/VPN adapters; choose the physical Wi-Fi/Ethernet address your phone can reach. The receiver binds only that address and stops accepting requests if it disappears. Update the Shortcut and firewall rule if DHCP changes it; a router DHCP reservation can keep it stable. No router port forwarding is needed.
 
@@ -40,7 +42,7 @@ Recreate it if the address changes or the project moves. Do not disable the fire
 | Receiving continues after closing | Closing hides the window. Open or quit through the tray icon. |
 | No phone internet while joined | This AP provides a local connection only. Cellular fallback and simultaneous school Wi-Fi depend on iPhone behavior/laptop drivers and remain untested. |
 
-The inspected adapter reports Wi-Fi Direct GO support but no old Hosted Network/Soft AP support. The app therefore uses modern Wi-Fi Direct APIs. Actual AP startup and iPhone use remain untested; a previous startup command was rejected by approval review. The receiver prototype is available without making that test a prerequisite for implementation.
+The hotspot uses Windows Wi-Fi Direct APIs. Availability depends on Wi-Fi Direct Group Owner support on the PC. Actual hotspot startup and iPhone use remain unverified.
 
 ## Local data
 

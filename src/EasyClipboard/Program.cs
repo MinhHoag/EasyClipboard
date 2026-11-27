@@ -5,7 +5,10 @@ internal static class Program
     [STAThread]
     private static void Main(string[] args)
     {
+        Velopack.VelopackApp.Build().Run();
         ApplicationConfiguration.Initialize();
+        if (!SystemInformation.HighContrast)
+            Application.SetColorMode(SystemColorMode.Dark);
         if (args.Length == 1 && args[0] == "--preview")
         {
             var folder = Path.Combine(Environment.CurrentDirectory, ".tools", "preview");
@@ -21,13 +24,14 @@ internal static class Program
             Application.Run(preview);
             return;
         }
-        if (args.Length != 0) return;
+        var startReceiving = args.Length == 1 && args[0] == "--start-receiving";
+        if (args.Length != 0 && !startReceiving) return;
         using var mutex = new Mutex(true, "Local\\EasyClipboard.Receiver", out var first);
         if (!first) { MessageBox.Show("EasyClipboard is already running. Open it from the system tray.", "EasyClipboard"); return; }
-        try { Application.Run(new MainWindow()); }
+        try { Application.Run(new MainWindow(startReceiving: startReceiving)); }
         catch (Exception error)
         {
-            MessageBox.Show($"EasyClipboard could not start ({error.GetType().Name}). Check access to {LocalFiles.DefaultRoot}. Your existing data has not been reset.", "EasyClipboard", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show($"EasyClipboard could not start ({error.GetType().Name}). Check access to %LOCALAPPDATA%\\EasyClipboard. Your existing data has not been reset.", "EasyClipboard", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }

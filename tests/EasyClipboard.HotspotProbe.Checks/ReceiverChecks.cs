@@ -195,8 +195,15 @@ internal static class ReceiverChecks
         Check(!profile.Contains(identity.Token) && !profile.Contains(identity.WifiPassword), "profile contains no pairing or Wi-Fi secrets");
         Check(profile.Contains("com.apple.security.root"), "onboarding emits a certificate profile, not a fake Shortcut");
 
+        service.Changed += () => throw new InvalidOperationException("History display failed.");
+        var notified = false;
+        service.Changed += () => notified = true;
         var response = await Send(request);
         Check(response.IsSuccessStatusCode, "text transfer completes over verified local HTTPS");
+        Check(notified, "history-display failure preserves the successful receipt and other observers");
+        Check(response.Content.Headers.ContentLength == (await response.Content.ReadAsByteArrayAsync()).Length &&
+            response.Headers.ConnectionClose == true && response.Headers.TransferEncodingChunked != true,
+            "success receipt has an exact byte length and completes the connection");
         using var receipt = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         Check(receipt.RootElement.GetProperty("clipboardUpdated").GetBoolean(), "success confirms save and clipboard sink completion");
         Check(clipboard.Current?.Text == text, "Unicode, emoji, and newlines preserved");
@@ -222,6 +229,8 @@ internal static class ReceiverChecks
         clipboard.Fail = true;
         var retry = request with { TransferId = Guid.NewGuid(), Text = "Retry safely" };
         Check((await Send(retry)).StatusCode == HttpStatusCode.ServiceUnavailable && clipboard.Current == before, "clipboard contention reports failure and preserves prior item");
+        Check(bank.ListEntries().All(x => x.Id != retry.TransferId) && bank.ListEntries(true).Any(x => x.Id == retry.TransferId),
+            "history list hides a pending transfer until clipboard commit");
         clipboard.Fail = false;
         Check((await Send(retry)).IsSuccessStatusCode && bank.List().Count == 2, "same-ID retry completes one pending entry");
 
@@ -233,6 +242,54 @@ internal static class ReceiverChecks
         Check((await Send(image)).IsSuccessStatusCode && clipboard.Current?.Png is not null, "actual image is decoded and stored");
         using var savedImage = System.Drawing.Image.FromStream(new MemoryStream(new HistoryBank(root).Find(image.TransferId)!.Png!));
         Check(savedImage.Width == 3 && savedImage.Height == 2, "photo remains decodable after history reopen");
+
+        var dropRoot = Path.Combine(root, "taildrop-check");
+        var dropHistory = new HistoryBank(dropRoot);
+        var dropSink = new FakeClipboard();
+        var downloads = Directory.CreateDirectory(Path.Combine(dropRoot, "Downloads")).FullName;
+        var dropId = Guid.NewGuid();
+        var name = $"EasyClipboard-temp-{dropId:D}.jpeg";
+        var tagged = Path.Combine(downloads, name);
+        var ordinary = Path.Combine(downloads, "keep.jpeg");
+        bitmap.Save(tagged, ImageFormat.Jpeg);
+        File.Copy(tagged, ordinary);
+        File.SetLastWriteTimeUtc(tagged, DateTime.UtcNow.AddSeconds(-10));
+        var importerType = typeof(HistoryBank).Assembly.GetType("EasyClipboard.TaildropImport", throwOnError: true)!;
+        var importer = Activator.CreateInstance(importerType, dropHistory, new TransferService(dropHistory, dropSink), downloads)!;
+        Task ScanDrop(bool enabled) => (Task)importerType.GetMethod("RunAsync")!.Invoke(importer, [enabled])!;
+        await ScanDrop(false);
+        Check(File.Exists(tagged) && dropSink.Calls == 0, "Taildrop import requires opt-in");
+        await ScanDrop(true);
+        var managed = Path.Combine(dropRoot, "taildrop-temp", name);
+        Check(File.Exists(managed) && !File.Exists(tagged) && File.Exists(ordinary) &&
+            dropSink.Current?.Id == dropId && dropSink.Current.Png is not null && dropHistory.Find(dropId)?.Applied == true,
+            "tagged JPEG lands on the clipboard and moves to managed storage while ordinary downloads stay put");
+        File.SetLastWriteTimeUtc(managed, DateTime.UtcNow.AddHours(-25));
+        await ScanDrop(false);
+        Check(File.Exists(managed) && dropHistory.Find(dropId) is not null,
+            "Taildrop images older than 24 hours stay within the normal history limits");
+        dropHistory.Configure(new Preferences(30, 1, 32));
+        dropHistory.Save(TransferValidation.Prepare(request) with { Applied = true, ReceivedAt = DateTimeOffset.UtcNow.AddMinutes(1) });
+        dropHistory.Prune();
+        await ScanDrop(false);
+        Check(!File.Exists(managed) && dropHistory.Find(dropId) is null && File.Exists(ordinary),
+            "shared history limits remove the managed Taildrop copy even when new imports are disabled");
+
+        var cleanupHistory = new HistoryBank(Path.Combine(root, "duplicate-check"));
+        var oldText = TransferValidation.Prepare(request) with { Applied = true };
+        var newText = oldText with { Id = Guid.NewGuid(), ReceivedAt = oldText.ReceivedAt.AddSeconds(1) };
+        var richText = newText with { Id = Guid.NewGuid(), Html = "<b>Different formatting</b>" };
+        var pendingText = newText with { Id = Guid.NewGuid(), Applied = false };
+        var oldImage = TransferValidation.Prepare(image) with { Applied = true };
+        var newImage = oldImage with { Id = Guid.NewGuid(), ReceivedAt = oldImage.ReceivedAt.AddSeconds(1) };
+        foreach (var item in new[] { oldText, newText, richText, pendingText, oldImage, newImage })
+            cleanupHistory.Save(item);
+        var reopenedCleanup = new HistoryBank(cleanupHistory.Root);
+        Check(reopenedCleanup.ClearDuplicates() == 2 &&
+            reopenedCleanup.ListEntries(true).Select(x => x.Id).ToHashSet()
+                .SetEquals([newText.Id, richText.Id, pendingText.Id, newImage.Id]) &&
+            reopenedCleanup.Find(oldText.Id) is null && reopenedCleanup.Find(oldImage.Id) is null,
+            "clearing duplicates keeps the newest identical text and PNG, distinct formatting, and pending transfers");
 
         using var malformed = new StringContent("{broken", Encoding.UTF8, "application/json");
         Check((await client.PostAsync("/v1/transfers", malformed)).StatusCode == HttpStatusCode.BadRequest, "malformed JSON returns a clear error");
@@ -254,7 +311,9 @@ internal static class ReceiverChecks
         Check(bank.List().Count == 3, "interrupted request adds no successful history");
         bank.Configure(new Preferences(30, 1, 32));
         Check(bank.List().Count == 1, "retention prunes to configured count");
+        Check(bank.ListEntries().Single().Id == bank.List().Single().Id, "pruning removes the history row and its saved payload together");
         bank.Clear();
+        Check(bank.ListEntries().Count == 0, "clear removes history rows immediately");
         Check(new HistoryBank(root).List().Count == 0, "clear history persists");
         // Explicitly opted-in home HTTP mode uses the same validation, auth, and persistence pipeline.
         var homePort = FreePort();

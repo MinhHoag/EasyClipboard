@@ -51,7 +51,10 @@ internal static class LargeImageChecks
             if (!response.IsSuccessStatusCode) throw new Exception($"FAIL: {label}: {await response.Content.ReadAsStringAsync()}");
             if (sink.Item?.Id != request.TransferId) throw new Exception("Large image never reached the clipboard sink.");
             AssertPixels(original, sink.Item.Png!);
-            var saved = new HistoryBank(root).Find(request.TransferId);
+            var reopened = new HistoryBank(root);
+            var entry = reopened.ListEntries().Single(x => x.Id == request.TransferId);
+            if (entry.Label != "Photo / screenshot") throw new Exception("Saved photo is missing its history label.");
+            var saved = reopened.Find(entry.Id);
             if (saved is not { Applied: true }) throw new Exception("Large image receipt did not persist.");
             AssertPixels(original, saved.Png!);
             Console.WriteLine($"PASS: {label} transfers, saves encrypted history, and preserves every pixel at 144 DPI.");

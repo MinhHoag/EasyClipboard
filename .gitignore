@@ -3,6 +3,8 @@
 **/bin/
 **/obj/
 artifacts/
+output/
+.nfc-video-tools/
 TestResults/
 .vs/
 *.user
@@ -21,6 +23,8 @@ pairing*.json
 *.crt
 *.mobileconfig
 *.log
+*.dat
+*.shortcut
 
 # Local environment and editor state
 .env

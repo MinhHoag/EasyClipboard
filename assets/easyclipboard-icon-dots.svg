@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">EasyClipboard clipboard with dotted send arrow</title>
+  <rect x="7" y="10" width="50" height="51" rx="8" fill="#111111" stroke="#777777" stroke-width="2"/>
+  <rect x="22" y="5" width="20" height="10" rx="3" fill="#B8B8B8"/>
+  <rect x="26" y="9" width="12" height="2" rx="1" fill="#777777"/>
+  <defs><circle id="dot" r="3.25"/></defs>
+  <g transform="translate(5.76 10.76) scale(.82)">
+  <g fill="#333333">
+    <use href="#dot" x="14" y="14"/><use href="#dot" x="23" y="14"/><use href="#dot" x="32" y="14"/><use href="#dot" x="41" y="14"/><use href="#dot" x="50" y="14"/>
+    <use href="#dot" x="14" y="23"/><use href="#dot" x="50" y="23"/>
+    <use href="#dot" x="14" y="41"/><use href="#dot" x="50" y="41"/>
+    <use href="#dot" x="14" y="50"/><use href="#dot" x="23" y="50"/><use href="#dot" x="32" y="50"/><use href="#dot" x="41" y="50"/><use href="#dot" x="50" y="50"/>
+  </g>
+  <g fill="#505050">
+    <use href="#dot" x="23" y="23"/><use href="#dot" x="41" y="23"/>
+    <use href="#dot" x="23" y="41"/><use href="#dot" x="41" y="41"/>
+  </g>
+  <g fill="#FFFFFF">
+    <use href="#dot" x="32" y="23"/>
+    <use href="#dot" x="14" y="32"/><use href="#dot" x="23" y="32"/><use href="#dot" x="32" y="32"/><use href="#dot" x="41" y="32"/>
+    <use href="#dot" x="32" y="41"/>
+  </g>
+  <use href="#dot" x="50" y="32" fill="#333333"/>
+  </g>
+</svg>

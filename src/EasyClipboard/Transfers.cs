@@ -51,35 +51,41 @@ public static class TransferValidation
             var width = BinaryPrimitives.ReadUInt32BigEndian(bytes.AsSpan(16, 4));
             var height = BinaryPrimitives.ReadUInt32BigEndian(bytes.AsSpan(20, 4));
             ImageResources.EnsureImageFits(width, height, bytes.Length);
-            try
-            {
-                using var input = new MemoryStream(bytes);
-                using var decoded = Image.FromStream(input, false, true);
-                if (decoded.RawFormat.Guid != ImageFormat.Png.Guid || decoded.Width != width || decoded.Height != height)
-                    throw new ArgumentException();
-                // Fully rasterize before touching storage or the clipboard. Drops unneeded metadata.
-                using var bitmap = new Bitmap(decoded.Width, decoded.Height, PixelFormat.Format32bppArgb);
-                using (var graphics = Graphics.FromImage(bitmap))
-                {
-                    // DrawImageUnscaled uses physical (DPI-based) size. A 144-DPI screenshot
-                    // would otherwise shrink inside this 96-DPI canvas. Copy pixel rectangles
-                    // explicitly so sanitizing the PNG never resizes or crops its contents.
-                    graphics.PageUnit = GraphicsUnit.Pixel;
-                    graphics.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
-                    var pixels = new Rectangle(0, 0, decoded.Width, decoded.Height);
-                    graphics.DrawImage(decoded, pixels, pixels, GraphicsUnit.Pixel);
-                }
-                using var output = new MemoryStream();
-                bitmap.Save(output, ImageFormat.Png);
-                png = output.ToArray();
-            }
-            catch (OutOfMemoryException) { throw ImageResources.InsufficientMemory(); }
-            catch (Exception error) when (error is ArgumentException or System.Runtime.InteropServices.ExternalException)
-            { throw new TransferError(400, "invalid_image", "The PNG could not be decoded."); }
+            png = NormalizeImage(bytes, ImageFormat.Png);
         }
         else throw new TransferError(415, "unsupported_type", "Use text/plain or image/png.");
         var hash = Convert.ToHexString(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(request, LocalFiles.Json)));
         return new ClipItem(request.TransferId, DateTimeOffset.UtcNow, request.ContentType, text, png, request.Html, hash);
+    }
+
+    internal static byte[] NormalizeImage(byte[] bytes, ImageFormat expectedFormat)
+    {
+        try
+        {
+            using var input = new MemoryStream(bytes);
+            using var decoded = Image.FromStream(input, false, expectedFormat.Guid == ImageFormat.Png.Guid);
+            if (decoded.RawFormat.Guid != expectedFormat.Guid)
+                throw new ArgumentException();
+            ImageResources.EnsureImageFits((uint)decoded.Width, (uint)decoded.Height, bytes.Length);
+            // Fully rasterize before touching storage or the clipboard. Drops unneeded metadata.
+            using var bitmap = new Bitmap(decoded.Width, decoded.Height, PixelFormat.Format32bppArgb);
+            using (var graphics = Graphics.FromImage(bitmap))
+            {
+                // DrawImageUnscaled uses physical (DPI-based) size. A 144-DPI screenshot
+                // would otherwise shrink inside this 96-DPI canvas. Copy pixel rectangles
+                // explicitly so sanitizing the PNG never resizes or crops its contents.
+                graphics.PageUnit = GraphicsUnit.Pixel;
+                graphics.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
+                var pixels = new Rectangle(0, 0, decoded.Width, decoded.Height);
+                graphics.DrawImage(decoded, pixels, pixels, GraphicsUnit.Pixel);
+            }
+            using var output = new MemoryStream();
+            bitmap.Save(output, ImageFormat.Png);
+            return output.ToArray();
+        }
+        catch (OutOfMemoryException) { throw ImageResources.InsufficientMemory(); }
+        catch (Exception error) when (error is ArgumentException or System.Runtime.InteropServices.ExternalException)
+        { throw new TransferError(400, "invalid_image", "The image could not be decoded."); }
     }
 }
 
@@ -94,7 +100,9 @@ public sealed class TransferService(HistoryBank bank, IClipboardSink clipboard)
     private volatile bool _paused;
     public bool Paused { get => _paused; set => _paused = value; }
     public event Action? Changed;
-    public async Task<bool> ReceiveAsync(TransferRequest request)
+    public Task<bool> ReceiveAsync(TransferRequest request) => ReceiveAsync(() => TransferValidation.Prepare(request));
+
+    internal async Task<bool> ReceiveAsync(Func<ClipItem> prepare)
     {
         if (Paused) throw new TransferError(503, "paused", "Receiving is paused on the laptop.");
         // Bound decode concurrency as well as writes. Never queue large decoded images indefinitely.
@@ -102,7 +110,7 @@ public sealed class TransferService(HistoryBank bank, IClipboardSink clipboard)
         try
         {
             if (Paused) throw new TransferError(503, "paused", "Receiving is paused on the laptop.");
-            var item = TransferValidation.Prepare(request);
+            var item = prepare();
             var previous = bank.Find(item.Id);
             if (previous is not null)
             {
@@ -114,7 +122,10 @@ public sealed class TransferService(HistoryBank bank, IClipboardSink clipboard)
             await clipboard.ApplyAsync(item, () => bank.Save(item with { Applied = true }));
             // Clipboard and receipt have committed. Maintenance must not turn that into a failed transfer.
             bank.TryPrune(item.Id);
-            Changed?.Invoke();
+            if (Changed is { } observers)
+                foreach (Action observer in observers.GetInvocationList())
+                    try { observer(); }
+                    catch { /* The receipt is committed. Display failures must not report a failed transfer. */ }
             return false;
         }
         catch (IOException) { throw new TransferError(507, "storage_failed", "Local history could not be saved. Check free disk space and retry."); }

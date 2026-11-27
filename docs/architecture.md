@@ -45,7 +45,7 @@ Images have no fixed file-size, megapixel or side-length cutoffs and are never d
 
 ### On-demand PC-to-phone fetch
 
-`GET /v1/clipboard` uses the same network and Bearer authentication checks. It defaults to disabled and requires the explicit per-session **Allow phone to fetch PC clipboard** checkbox. Successful responses are raw UTF-8 plain text or sanitized PNG with `Cache-Control: no-store`; failures retain the versioned JSON error envelope. HEAD/POST do not read the clipboard. HTTPS-only modes reject HTTP fetches.
+`GET /v1/clipboard` uses the same network and Bearer authentication checks. **Allow phone to fetch PC clipboard** is checked when receiving starts and can be disabled for that session. Successful responses are raw UTF-8 plain text or sanitized PNG with `Cache-Control: no-store`; failures retain the versioned JSON error envelope. HEAD/POST do not read the clipboard. HTTPS-only modes reject HTTP fetches.
 
 `ClipboardExport` permits only one concurrent read, rechecks permission before and after reading/normalization, and invalidates an in-flight request when permission is withdrawn even if re-enabled. `WindowsClipboard.ReadAsync` dispatches to the UI's STA thread, bounds waiting, checks the clipboard sequence for a concurrent change, and reads only PNG/bitmap/text. It does not resolve file paths, HTML resources or URLs. The source shares existing image/text validation limits. No reverse-transfer contents are persisted and the PC clipboard is not changed. Cancelled requests release the read gate; a native clipboard owner that blocks inside an OS/OLE call cannot be forcibly interrupted safely.
 
