@@ -27,22 +27,40 @@ if (-not $NoBuild) {
     $light = $appearance -eq 'Light' -or ($appearance -eq 'System' -and
         (Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -ErrorAction SilentlyContinue).AppsUseLightTheme -ne 0)
     $splash = New-Object Windows.Forms.Form -Property @{
-        FormBorderStyle = 'None'; StartPosition = 'CenterScreen'; Size = New-Object Drawing.Size 340, 90
+        FormBorderStyle = 'None'; StartPosition = 'CenterScreen'; Size = New-Object Drawing.Size 360, 110
         ShowInTaskbar = $false; TopMost = $true
         BackColor = if ($light) { [Drawing.Color]::FromArgb(226, 226, 226) } else { [Drawing.Color]::FromArgb(29, 29, 29) }
     }
-    $splash.Controls.Add((New-Object Windows.Forms.Label -Property @{
-        Text = "Starting EasyClipboard$([char]0x2026)"; Dock = 'Fill'; TextAlign = 'MiddleCenter'
-        Font = New-Object Drawing.Font 'Segoe UI', 11
-        ForeColor = if ($light) { [Drawing.Color]::FromArgb(25, 25, 25) } else { [Drawing.Color]::White }
-    }))
+    $script:frame = 0
+    $icon = New-Object Drawing.Icon (Join-Path $projectRoot 'assets\easyclipboard.ico'), 64, 64
+    $textColor = if ($light) { [Drawing.Color]::FromArgb(25, 25, 25) } else { [Drawing.Color]::White }
+    $dim = if ($light) { [Drawing.Color]::FromArgb(190, 190, 190) } else { [Drawing.Color]::FromArgb(70, 70, 70) }
+    $lit = $textColor # white on dark; dark on the light theme, where white would vanish
+    $titleFont = New-Object Drawing.Font 'Segoe UI Semibold', 12
+    $canvas = New-Object Windows.Forms.Panel -Property @{ Dock = 'Fill' }
+    # Double buffering stops the dots flickering as they repaint.
+    $canvas.GetType().GetProperty('DoubleBuffered', [Reflection.BindingFlags]'Instance,NonPublic').SetValue($canvas, $true)
+    $canvas.Add_Paint({
+        param($sender, $e)
+        $g = $e.Graphics; $g.SmoothingMode = 'AntiAlias'
+        $g.DrawIcon($icon, (New-Object Drawing.Rectangle 26, 23, 64, 64))
+        [Windows.Forms.TextRenderer]::DrawText($g, 'Starting EasyClipboard', $titleFont, (New-Object Drawing.Point 106, 30), $textColor)
+        # Five dots light up left to right, then start over, like a clip travelling across.
+        $step = [int][Math]::Floor($script:frame / 4) % 7
+        for ($i = 0; $i -lt 5; $i++) {
+            $on = $i -lt $step # step 6 holds all five lit for a beat
+            $brush = New-Object Drawing.SolidBrush ($(if ($on) { $lit } else { $dim }))
+            $g.FillEllipse($brush, 110 + $i * 22, 68, 11, 11); $brush.Dispose()
+        }
+    })
+    $splash.Controls.Add($canvas)
     $splash.Show()
     $project = Join-Path $projectRoot 'src\EasyClipboard\EasyClipboard.csproj'
     $build = Start-Process -FilePath $dotnetCommand -NoNewWindow -PassThru -ArgumentList @(
         'build', "`"$project`"", '-c', 'Release', '-m:1', '-nodeReuse:false', '--nologo')
     $null = $build.Handle # keeps ExitCode available after exit
-    while (-not $build.HasExited) { [Windows.Forms.Application]::DoEvents(); Start-Sleep -Milliseconds 50 }
-    $splash.Close()
+    while (-not $build.HasExited) { $script:frame++; $canvas.Invalidate(); [Windows.Forms.Application]::DoEvents(); Start-Sleep -Milliseconds 50 }
+    $splash.Close(); $icon.Dispose(); $titleFont.Dispose()
     if ($build.ExitCode -ne 0) {
         # A tray restart has no visible console, so say it out loud.
         [void][Windows.Forms.MessageBox]::Show('EasyClipboard did not build. Run Start EasyClipboard.cmd to see the errors.', 'EasyClipboard')

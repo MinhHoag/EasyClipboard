@@ -5,11 +5,13 @@ namespace EasyClipboard;
 // Decorative window edges, drawn procedurally in the empty side and bottom margins.
 internal static class EdgeArt
 {
-    public static readonly string[] Styles = ["None", "Vines", "Blossom"];
+    public static readonly string[] Styles = ["None", "Vines", "Blossom", "Snow", "Stars"];
     public static string Label(string style) => style switch
     {
         "Vines" => "Vines and leaves",
-        "Blossom" => "Wood and cherry blossom",
+        "Blossom" => "Cherry blossom",
+        "Snow" => "Snowfall",
+        "Stars" => "Stars",
         _ => "None"
     };
 
@@ -17,7 +19,7 @@ internal static class EdgeArt
     // sideTop: where the side art starts, so it stays clear of the busy header.
     public static void Draw(Graphics graphics, Rectangle outer, Padding margins, string style, int sideTop = 0)
     {
-        if (style is not ("Vines" or "Blossom") || SystemInformation.HighContrast) return;
+        if (style is not ("Vines" or "Blossom" or "Snow" or "Stars") || SystemInformation.HighContrast) return;
         graphics.SmoothingMode = SmoothingMode.AntiAlias;
         var light = Program.LightTheme;
         // "Inward" points from the window edge into its margin band.
@@ -32,8 +34,13 @@ internal static class EdgeArt
         foreach (var (from, to, inward, band) in edges)
         {
             if (band < 6) continue;
-            if (style == "Vines") Vine(graphics, from, to, inward, band, light, random);
-            else Branch(graphics, from, to, inward, band, light, random);
+            switch (style)
+            {
+                case "Vines": Vine(graphics, from, to, inward, band, light, random); break;
+                case "Blossom": Branch(graphics, from, to, inward, band, light, random); break;
+                case "Snow": Snow(graphics, from, to, inward, band, light, random); break;
+                default: Stars(graphics, from, to, inward, band, light, random); break;
+            }
         }
     }
 
@@ -112,5 +119,103 @@ internal static class EdgeArt
             graphics.FillEllipse(fallen, -band * .09f, -band * .05f, band * .18f, band * .1f);
             graphics.Restore(state);
         }
+    }
+
+    private static void Snow(Graphics graphics, PointF from, PointF to, PointF inward, int band, bool light, Random random)
+    {
+        var length = Distance(from, to);
+        var white = light ? Color.FromArgb(168, 186, 206) : Color.FromArgb(226, 234, 244); // pale blue-grey so it shows on a light window
+        var bottom = inward.Y != 0;
+        using var flake = new SolidBrush(white);
+        using var crystal = new Pen(white, MathF.Max(1.2f, band * .08f)) { StartCap = LineCap.Round, EndCap = LineCap.Round };
+        if (bottom)
+        {
+            // A soft drift along the bottom edge.
+            var drift = new List<PointF>();
+            for (float t = 0; t <= length; t += 6)
+                drift.Add(Along(from, to, inward, t, band * (.62f + MathF.Sin(t / 61f) * .14f + MathF.Sin(t / 23f) * .05f)));
+            drift.Add(Along(from, to, inward, length, 0));
+            drift.Add(Along(from, to, inward, 0, 0));
+            using var snowBank = new SolidBrush(Color.FromArgb(light ? 190 : 215, white));
+            graphics.FillPolygon(snowBank, drift.ToArray());
+            // A lower, solid white layer in front, with its own waves, so the pile has depth.
+            var front = new List<PointF>();
+            for (float t = 0; t <= length; t += 6)
+                front.Add(Along(from, to, inward, t, band * (.38f + MathF.Sin(t / 47f + 1.7f) * .1f + MathF.Sin(t / 19f) * .04f)));
+            front.Add(Along(from, to, inward, length, 0));
+            front.Add(Along(from, to, inward, 0, 0));
+            using var frontBank = new SolidBrush(light ? Color.FromArgb(252, 253, 255) : Color.White);
+            graphics.FillPolygon(frontBank, front.ToArray());
+            return; // the pile stays plain; flakes fall only down the sides
+        }
+        for (float t = 6; t < length - 4; t += 18 + random.Next(0, 16))
+        {
+            var at = Along(from, to, inward, t, band * (.15f + (float)random.NextDouble() * .7f));
+            if (random.Next(5) == 0)
+            {
+                // Now and then a six-armed crystal instead of a dot.
+                var arm = band * .32f;
+                for (var k = 0; k < 3; k++)
+                {
+                    var a = k * MathF.PI / 3 + .3f;
+                    graphics.DrawLine(crystal, at.X - MathF.Cos(a) * arm, at.Y - MathF.Sin(a) * arm, at.X + MathF.Cos(a) * arm, at.Y + MathF.Sin(a) * arm);
+                }
+            }
+            else
+            {
+                var size = band * (.14f + (float)random.NextDouble() * .12f);
+                graphics.FillEllipse(flake, at.X - size / 2, at.Y - size / 2, size, size);
+            }
+        }
+    }
+
+    private static void Stars(Graphics graphics, PointF from, PointF to, PointF inward, int band, bool light, Random random)
+    {
+        var length = Distance(from, to);
+        var gold = light ? Color.FromArgb(214, 168, 60) : Color.FromArgb(244, 222, 150);
+        var pale = light ? Color.FromArgb(150, 160, 186) : Color.FromArgb(214, 222, 246);
+        using var goldBrush = new SolidBrush(gold);
+        using var paleBrush = new SolidBrush(pale);
+        var moonSpace = 0f;
+        if (inward.X < 0 && length > band * 4)
+        {
+            // Crescent moon low on the right edge (this edge runs from the bottom corner upward).
+            var radius = band * .58f;
+            var centre = Along(from, to, inward, band * 2.2f, band * .66f); // deep enough that the moon never touches the window edge
+            using var disc = new GraphicsPath();
+            disc.AddEllipse(centre.X - radius, centre.Y - radius, radius * 2, radius * 2);
+            using var moon = new Region(disc);
+            using var bite = new GraphicsPath();
+            bite.AddEllipse(centre.X - radius * .45f, centre.Y - radius * 1.15f, radius * 2, radius * 2);
+            moon.Exclude(bite);
+            using var moonBrush = new SolidBrush(gold);
+            graphics.FillRegion(moonBrush, moon);
+            moonSpace = band * 3.2f;
+        }
+        for (float t = 6 + moonSpace; t < length - 4; t += 14 + random.Next(0, 18))
+        {
+            var at = Along(from, to, inward, t, band * (.15f + (float)random.NextDouble() * .7f));
+            var kind = random.Next(7);
+            if (kind == 0) FillStar(graphics, goldBrush, at, band * .4f, 5, .45f, random.Next(0, 72));          // five-point star
+            else if (kind == 1) FillStar(graphics, paleBrush, at, band * .36f, 4, .3f, 0);                        // four-point twinkle
+            else
+            {
+                var size = band * (.07f + (float)random.NextDouble() * .1f);                                    // distant dot
+                graphics.FillEllipse(paleBrush, at.X - size / 2, at.Y - size / 2, size, size);
+            }
+        }
+    }
+
+    private static void FillStar(Graphics graphics, Brush brush, PointF centre, float radius, int points, float innerRatio, float spinDegrees)
+    {
+        var corners = new PointF[points * 2];
+        var spin = spinDegrees * MathF.PI / 180 - MathF.PI / 2;
+        for (var i = 0; i < corners.Length; i++)
+        {
+            var r = i % 2 == 0 ? radius : radius * innerRatio;
+            var a = spin + i * MathF.PI / points;
+            corners[i] = new(centre.X + MathF.Cos(a) * r, centre.Y + MathF.Sin(a) * r);
+        }
+        graphics.FillPolygon(brush, corners);
     }
 }

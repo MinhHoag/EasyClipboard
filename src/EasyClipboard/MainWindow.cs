@@ -336,7 +336,7 @@ internal sealed class MainWindow : Form
         customizePage.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         customizePage.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         customizePage.Controls.Add(new Label { Text = "Edges", Font = titleFont, AutoSize = true, ForeColor = TextColor, Margin = new Padding(0, 0, 0, 4) }, 0, 0);
-        customizePage.Controls.Add(new Label { Text = "Decorate the sides and bottom of the window. More styles can be added here later.", AutoSize = true, ForeColor = DisabledText, Margin = new Padding(0, 0, 0, 12) }, 0, 1);
+        customizePage.Controls.Add(new Label { Text = "Decorate the sides and bottom of the window.", AutoSize = true, ForeColor = DisabledText, Margin = new Padding(0, 0, 0, 12) }, 0, 1);
         var edgeTiles = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoScroll = true, BackColor = CalendarView.Page, Margin = Padding.Empty };
         foreach (var style in EdgeArt.Styles)
         {
@@ -839,8 +839,8 @@ internal sealed class MainWindow : Form
         {
             _style = style;
             SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.Selectable, true);
-            Size = new Size(230, 170);
-            Margin = new Padding(0, 0, 14, 14);
+            Size = new Size(158, 126); // five fit across the default window, so no scrolling
+            Margin = new Padding(0, 0, 12, 12);
             Cursor = Cursors.Hand;
             TabStop = true;
             AccessibleName = EdgeArt.Label(style);
@@ -857,11 +857,11 @@ internal sealed class MainWindow : Form
             using var path = new System.Drawing.Drawing2D.GraphicsPath();
             path.AddRoundedRectangle(frame, new Size(LogicalToDeviceUnits(16), LogicalToDeviceUnits(16)));
             using (var canvas = new SolidBrush(Canvas)) graphics.FillPath(canvas, path);
-            var band = LogicalToDeviceUnits(14);
-            var pad = LogicalToDeviceUnits(10);
+            var band = LogicalToDeviceUnits(11);
+            var pad = LogicalToDeviceUnits(8);
             using (var inner = new SolidBrush(Surface)) graphics.FillRectangle(inner, frame.X + band + 4, frame.Y + pad, frame.Width - band * 2 - 8, frame.Height - pad - band - 6);
             graphics.SetClip(path);
-            EdgeArt.Draw(graphics, Rectangle.Inflate(frame, -4, -4), new Padding(band, 0, band, band), _style);
+            EdgeArt.Draw(graphics, Rectangle.Inflate(frame, -6, -6), new Padding(band, 0, band, band), _style); // inset so art never touches the outline
             graphics.ResetClip();
             using var outline = new Pen(_selected ? TextColor : Program.LightTheme ? Color.FromArgb(205, 205, 205) : Color.FromArgb(60, 60, 60), _selected ? 2 : 1);
             graphics.DrawPath(outline, path);
