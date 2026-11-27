@@ -15,7 +15,8 @@ internal sealed class WrapTab : Control
 
     // First tab on the panel's left edge: straight left side, no flare.
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
-    public bool FlushLeft { get; set; }
+    public bool FlushLeft { get => _flushLeft; set { _flushLeft = value; Width = value ? 42 : 48; } } // no left flare, so one foot narrower
+    private bool _flushLeft;
 
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public bool Active
@@ -28,16 +29,16 @@ internal sealed class WrapTab : Control
     {
         SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer |
             ControlStyles.ResizeRedraw | ControlStyles.Selectable, true);
-        Size = new Size(52, 36); // icon body 36 wide plus a small flare each side
+        Size = new Size(48, 36); // icon body 36 wide plus a small flare each side
         Margin = Padding.Empty;
         Cursor = Cursors.Hand;
         TabStop = true;
         AccessibleRole = AccessibleRole.PageTab;
     }
 
-    private int Foot => LogicalToDeviceUnits(8);
+    private int Foot => LogicalToDeviceUnits(6);
     private int BodyLeft => FlushLeft ? 0 : Foot;
-    private int BodyRight => FlushLeft ? Width - Foot * 2 : Width - Foot;
+    private int BodyRight => Width - Foot;
     public int IconTop => (Height - (Icon?.Height ?? 0)) / 2 + LogicalToDeviceUnits(1);
     // Square highlight centered on the icon (hover and keyboard focus).
     private Rectangle HoverBox
