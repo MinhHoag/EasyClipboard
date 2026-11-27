@@ -107,6 +107,10 @@ Developer mode (**Settings → Developer mode**) unlocks home Wi-Fi and hotspot 
 
 The automated checks cover real loopback HTTP/HTTPS requests, authentication, malformed input, text and image persistence, retries, retention, and reverse transfers, with the Windows clipboard simulated. Text and photo transfers have been tested from an iPhone on home Wi-Fi. Cellular use, hotspot mode, and installer upgrades still need device testing.
 
-No real pairing keys, certificates, or clipboard contents belong in the repository. **License selection remains deferred.**
+No real pairing keys, certificates, or clipboard contents belong in the repository.
+
+## License
+
+[MIT](LICENSE)
 
 <sub>EasyClipboard is not affiliated with or endorsed by Tailscale Inc. or Apple Inc.</sub>
