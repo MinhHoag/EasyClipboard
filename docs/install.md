@@ -19,7 +19,7 @@ flowchart LR
 > **Tap "Always Allow" on first run.** The first time each Shortcut reads your clipboard, pastes, sends to your PC or saves your info, iPhone asks for permission. Almost every step asks once. Tap **Always Allow** each time. If you tap **Allow Once**, it asks again on every run.
 
 > [!IMPORTANT]
-> **Install First time Setup first.** ECSend and ECReceive use what it saves. If you install them first, your iPhone won't find it and the Shortcuts won't work.
+> **Install "First time Setup" first.** ECSend and ECReceive use what it saves. If you install them first, your iPhone won't find it and the Shortcuts won't work.
 
 | Order | Shortcut | What it does | Install |
 | :---: | --- | --- | --- |
@@ -84,27 +84,27 @@ You run this once, on first use. It pairs your iPhone with your PC.
 That's it. ECSend and ECReceive use these saved values from now on, so you don't need to pick or scan again.
 
 > [!TIP]
-> Can't scan? Click **Copy all** on the PC, get the text onto your iPhone (for example by saving it to a file and choosing **Send with Tailscale**), copy it there, then run First time Setup. It reads the same four lines from the clipboard.
+> Can't scan? Click **Copy all** on the PC, get the text onto your iPhone (for example by saving it to a file and choosing **Send with Tailscale**), copy it there, then run "First time Setup". It reads the same four lines from the clipboard.
 
 > [!NOTE]
 > Screenshot to add: First time Setup after a successful scan.
 <!-- SCREENSHOT: phone-settings-scan.png -->
 
-**Changed something on the PC?** If you revoke the key or your PC gets a new address, just run First time Setup again and scan the new code. You don't need to touch ECSend or ECReceive.
+**Changed something on the PC?** If you revoke the key or your PC gets a new address, just run "First time Setup" again and scan the new code. You don't need to touch ECSend or ECReceive.
 
 ## Step 4. Install ECSend
 
 > [!TIP]
 > It's easier if you open this page in GitHub mobile, or send yourself the [Shortcut links](#shortcut-links) at the end of this page.
 
-Tap **[Get Shortcut][push]**, then **Add Shortcut**. ECSend reads your values from First time Setup and sends photos through Taildrop, which is why that comes first.
+Tap **[Get Shortcut][push]**, then **Add Shortcut**. ECSend reads your values from "First time Setup" and sends photos through Taildrop, which is why that comes first.
 
 ## Step 5. Install ECReceive
 
 > [!TIP]
 > It's easier if you open this page in GitHub mobile, or send yourself the [Shortcut links](#shortcut-links) at the end of this page.
 
-Tap **[Get Shortcut][pull]**, then **Add Shortcut**. ECReceive also reads your values from First time Setup.
+Tap **[Get Shortcut][pull]**, then **Add Shortcut**. ECReceive also reads your values from "First time Setup".
 
 > [!NOTE]
 > ECReceive only works while **Phone fetch** is on in EasyClipboard (Settings → Phone fetch). It's on by default.
@@ -163,10 +163,10 @@ Want both on one button? Make a small menu Shortcut: see [One menu for both](tip
 | "The action could not run because Tailscale is not running" | Open the **Tailscale** app, make sure it's connected, then run the Shortcut again. Keeps happening? On iPhone go to **Settings → Tailscale** and turn on **Background App Refresh**. |
 | It keeps asking for permission | You tapped **Allow Once**. Run it again and tap **Always Allow**. |
 | "Couldn't connect" or a timeout | Is Tailscale on for both devices? Is EasyClipboard showing a green dot? |
-| "…does not match this running receiver's pairing key" | The saved key is old. Run First time Setup and scan the current setup code. |
+| "…does not match this running receiver's pairing key" | The saved key is old. Run "First time Setup" and scan the current setup code. |
 | "…this receiver expects 64" | Extra spaces or the word "Bearer" got pasted into the key. Paste only the 64-character code. |
-| ECSend or ECReceive asks you to pick a Shortcut | You installed them before First time Setup. Install it, or reinstall in order. |
-| Photos don't arrive | Redo the photo check in Step 1. If that fails, **Send Files** is off or Tailscale isn't connected. If it works, run First time Setup again and pick the right PC. |
+| ECSend or ECReceive asks you to pick a Shortcut | You installed them before "First time Setup". Install it, or reinstall in order. |
+| Photos don't arrive | Redo the photo check in Step 1. If that fails, **Send Files** is off or Tailscale isn't connected. If it works, run "First time Setup" again and pick the right PC. |
 | "Turn on Settings → Phone fetch" | Turn on **Settings → Phone fetch** in EasyClipboard, and make sure it's receiving (green dot). |
 | You edited a Shortcut and now it's broken | Compare it with [Inside the Shortcuts](shortcut-structure.md), or reinstall it from the links below. |
 

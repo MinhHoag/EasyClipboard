@@ -1365,7 +1365,7 @@ internal sealed class MainWindow : Form
             return;
         }
         _setup.Text = TailscaleMode
-        ? "1. Connect Tailscale on this laptop and on your iPhone (or its supported Shadowrocket integration).\r\n2. Select the laptop's Tailscale address, then Start receiving.\r\n3. Use the displayed URL in both Shortcut POST actions; keep the existing pairing key and JSON bodies.\r\n\r\nThe Tailscale tunnel encrypts traffic. No certificate profile is needed. See docs/tailscale.md.\r\nClosing this window keeps receiving in the tray. Use Quit there to stop."
+        ? "1. Connect Tailscale on this PC and your iPhone, signed in to the same account.\r\n2. Pick this PC's Tailscale address above, then press ▶.\r\n3. First time? Open Pairing / setup, run \"First time Setup\" on your iPhone and scan the code.\r\n\r\nTailscale encrypts everything between your devices.\r\nClosing this window keeps receiving in the tray. Use Quit there to stop."
         : HomeMode
         ? $"1. Keep the iPhone and laptop on the same house Wi-Fi / LAN.\r\n2. Select the laptop's active address above, then Start receiving.\r\n3. Open Pairing / setup for the key, and follow docs/shortcut.md.\r\n\r\n{(HomeHttp ? "HTTP mode needs no iPhone profile. Content and pairing key are unencrypted." : "HTTPS mode requires the verified local certificate profile.")}\r\nClosing this window keeps receiving in the tray. Use Quit there to stop."
         : "1. Start the private hotspot.\r\n2. Open Pairing / setup for Wi-Fi credentials and certificate trust.\r\n3. Follow docs/shortcut.md.\r\n\r\nClosing this window keeps receiving in the tray. Use Quit there to stop.";
