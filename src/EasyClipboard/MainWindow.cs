@@ -594,8 +594,6 @@ internal sealed class MainWindow : Form
         };
         appearance.Controls.Add(themes, 0, 0);
         appearance.Controls.Add(applyTheme, 1, 0);
-        options.RowStyles.Add(new RowStyle(SizeType.Absolute, 165));
-        options.Controls.Add(SettingsSection("Appearance", appearance), 0, 0);
         var storage = SettingsButton("Manage");
         storage.Click += (_, _) => ConfigureStorage(dialog);
         var updates = SettingsButton("Check now");
@@ -622,8 +620,6 @@ internal sealed class MainWindow : Form
             UpdateReceiverControls();
             dialog.Close();
         };
-        AddSettingRow("Clipboard history", "Set limits for saved clipboard history.", storage);
-        AddSettingRow("Updates", "Check for a new EasyClipboard version.", updates);
         var fetch = SettingsButton(_fetchAllowed ? "Turn off" : "Turn on");
         fetch.Click += (_, _) =>
         {
@@ -638,11 +634,17 @@ internal sealed class MainWindow : Form
             _allowFetch.Checked = _fetchAllowed && (_server is not null || _demoReceiving);
             fetch.Text = _fetchAllowed ? "Turn off" : "Turn on";
         };
-        AddSettingRow("Phone fetch", "Let your phone fetch the PC clipboard while receiving. On by default.", fetch);
         var rerunTour = SettingsButton("Start tour");
         rerunTour.Click += (_, _) => { dialog.Close(); BeginInvoke(() => _startTour?.Invoke()); };
-        AddSettingRow("Tour", "Walk through the main parts of EasyClipboard again.", rerunTour);
-        AddSettingRow("Developer mode", "Access advanced connection options. Stop receiving before changing this.", developer);
+        // Order: what the app does, how it looks, upkeep, help, then advanced.
+        AddSettingRow("EasyClipboard",
+            ("History: set limits for saved clipboard items.", storage),
+            ("Phone fetch: let your phone get the PC clipboard while receiving. On by default.", fetch));
+        options.RowStyles.Add(new RowStyle(SizeType.Absolute, 165));
+        options.Controls.Add(SettingsSection("Appearance", appearance), 0, options.Controls.Count);
+        AddSettingRow("Updates", ("Check for a new EasyClipboard version.", updates));
+        AddSettingRow("Tour", ("Walk through the main parts of EasyClipboard again.", rerunTour));
+        AddSettingRow("Developer mode", ("Access advanced connection options. Stop receiving before changing this.", developer));
         dialog.Controls.Add(options);
         if (dialog.ShowDialog(this) == DialogResult.Retry) Restart();
 
@@ -652,17 +654,21 @@ internal sealed class MainWindow : Form
             Padding = new Padding(15, 24, 15, 12)
         };
 
-        void AddSettingRow(string title, string description, Control action)
+        void AddSettingRow(string title, params (string Description, Control Action)[] lines)
         {
-            options.RowStyles.Add(new RowStyle(SizeType.Percent, 1));
-            var row = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1, BackColor = AppearanceSurface };
+            options.RowStyles.Add(new RowStyle(SizeType.Percent, lines.Length)); // two-line sections get twice the height
+            var row = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = lines.Length, BackColor = AppearanceSurface };
             row.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             row.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-            var text = new Label { AutoSize = true, Text = description, Anchor = AnchorStyles.Left, MaximumSize = new Size(350, 0), Margin = Padding.Empty };
-            action.Anchor = AnchorStyles.Right;
-            action.Margin = new Padding(12, 0, 0, 0);
-            row.Controls.Add(text, 0, 0);
-            row.Controls.Add(action, 1, 0);
+            for (var index = 0; index < lines.Length; index++)
+            {
+                row.RowStyles.Add(new RowStyle(SizeType.Percent, 1));
+                var text = new Label { AutoSize = true, Text = lines[index].Description, Anchor = AnchorStyles.Left, MaximumSize = new Size(350, 0), Margin = Padding.Empty };
+                lines[index].Action.Anchor = AnchorStyles.Right;
+                lines[index].Action.Margin = new Padding(12, 0, 0, 0);
+                row.Controls.Add(text, 0, index);
+                row.Controls.Add(lines[index].Action, 1, index);
+            }
             options.Controls.Add(SettingsSection(title, row), 0, options.Controls.Count);
         }
     }

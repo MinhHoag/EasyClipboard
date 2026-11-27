@@ -54,7 +54,7 @@ EasyClipboard checks for updates when it opens and asks before installing one.
 
 ## Privacy and security
 
-- History stays on your PC under `%LOCALAPPDATA%\EasyClipboard`, encrypted for your Windows account. Defaults: 30 days, 200 items, 256 MB (**Settings → Clipboard history**).
+- History stays on your PC under `%LOCALAPPDATA%\EasyClipboard`, encrypted for your Windows account. Defaults: 30 days, 200 items, 256 MB (**Settings → EasyClipboard → History**).
 - Every transfer needs your **pairing key**. You can replace it any time in **Pairing / setup**; old Shortcuts then stop working until you run First time Setup again.
 - Receive only reads the PC clipboard when your Shortcut asks, and only while **Settings → Phone fetch** is on.
 - Nothing is typed or pasted for you, and nothing watches your iPhone's clipboard.
