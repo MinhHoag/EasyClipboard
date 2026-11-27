@@ -33,3 +33,4 @@ pairing*.json
 !.env.example
 .DS_Store
 Thumbs.db
+.obsidian/
