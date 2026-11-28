@@ -3,6 +3,10 @@ namespace EasyClipboard;
 internal sealed class HistoryList : ScrollableControl
 {
     private readonly List<HistoryEntry> _entries = [];
+    // Display rows: a group heading (Entry -1) or an entry index. _rowOf maps an entry index to its row.
+    private readonly List<(string? Heading, int Entry)> _rows = [];
+    private readonly List<int> _rowOf = [];
+    private readonly Dictionary<string, int> _whenWidth = []; // time column width per group, so short times sit close
     private readonly System.Windows.Forms.Timer _animation = new() { Interval = 15 };
     private int _selectedIndex = -1;
     private double _targetOffset;
@@ -13,7 +17,28 @@ internal sealed class HistoryList : ScrollableControl
     public HistoryEntry? SelectedItem => _selectedIndex >= 0 ? _entries[_selectedIndex] : null;
     private int RowHeight => Font.Height + (int)Math.Round(10 * DeviceDpi / 96.0);
     private int Offset => -AutoScrollPosition.Y;
-    private int MaximumOffset => Math.Max(0, _entries.Count * RowHeight - ClientSize.Height);
+    private int MaximumOffset => Math.Max(0, _rows.Count * RowHeight - ClientSize.Height);
+    private int RowOf(int entry) => entry >= 0 && entry < _rowOf.Count ? _rowOf[entry] : 0;
+
+    private void BuildRows()
+    {
+        _rows.Clear();
+        _rowOf.Clear();
+        string? group = null;
+        for (var index = 0; index < _entries.Count; index++)
+        {
+            var next = _entries[index].Group;
+            if (next != group) _rows.Add((group = next, -1));
+            _rowOf.Add(_rows.Count);
+            _rows.Add((null, index));
+        }
+        var gap = (int)Math.Round(10 * DeviceDpi / 96.0);
+        _whenWidth.Clear();
+        var widestTime = TextRenderer.MeasureText(new DateTime(2000, 1, 1, 12, 59, 0).ToString("t"), Font).Width + gap; // Today and Yesterday line up
+        foreach (var entry in _entries)
+            _whenWidth[entry.Group] = Math.Max(_whenWidth.GetValueOrDefault(entry.Group, widestTime), TextRenderer.MeasureText(entry.When, Font).Width + gap);
+        AutoScrollMinSize = new Size(0, _rows.Count * RowHeight);
+    }
 
     public HistoryList()
     {
@@ -31,8 +56,9 @@ internal sealed class HistoryList : ScrollableControl
     public void SetEntries(IReadOnlyList<HistoryEntry> entries)
     {
         var selectedId = SelectedItem?.Id;
-        var topIndex = Math.Min(Offset / RowHeight, _entries.Count - 1);
-        var topId = topIndex >= 0 ? _entries[topIndex].Id : (Guid?)null;
+        var topRow = Math.Min(Offset / RowHeight, _rows.Count - 1);
+        var topEntry = topRow >= 0 ? _rows.Skip(topRow).Select(row => row.Entry).FirstOrDefault(entry => entry >= 0, -1) : -1;
+        var topId = topEntry >= 0 ? _entries[topEntry].Id : (Guid?)null;
         var withinRow = Offset % RowHeight;
         var wasAtTop = Offset == 0;
         _animation.Stop();
@@ -40,9 +66,9 @@ internal sealed class HistoryList : ScrollableControl
         _entries.AddRange(entries);
         _selectedIndex = _entries.FindIndex(entry => entry.Id == selectedId);
         if (_selectedIndex < 0 && _entries.Count > 0) _selectedIndex = 0;
-        AutoScrollMinSize = new Size(0, _entries.Count * RowHeight);
+        BuildRows();
         var newTop = _entries.FindIndex(entry => entry.Id == topId);
-        SetOffset(wasAtTop ? 0 : newTop >= 0 ? newTop * RowHeight + withinRow : Offset);
+        SetOffset(wasAtTop ? 0 : newTop >= 0 ? RowOf(newTop) * RowHeight + withinRow : Offset);
         _targetOffset = Offset;
         Invalidate();
         SelectedIndexChanged?.Invoke(this, EventArgs.Empty);
@@ -53,14 +79,28 @@ internal sealed class HistoryList : ScrollableControl
     {
         e.Graphics.Clear(BackColor);
         var first = Offset / RowHeight;
-        var last = Math.Min(_entries.Count, (Offset + ClientSize.Height + RowHeight - 1) / RowHeight);
+        var last = Math.Min(_rows.Count, (Offset + ClientSize.Height + RowHeight - 1) / RowHeight);
         var highContrast = SystemInformation.HighContrast;
         var selection = highContrast ? SystemColors.Highlight : MainWindow.SelectionColor;
         var selectionText = highContrast ? SystemColors.HighlightText : MainWindow.TextColor;
         using var selectionBrush = new SolidBrush(selection);
-        for (var index = first; index < last; index++)
+        for (var row = first; row < last; row++)
         {
-            var bounds = new Rectangle(0, index * RowHeight - Offset, ClientSize.Width, RowHeight);
+            var bounds = new Rectangle(0, row * RowHeight - Offset, ClientSize.Width, RowHeight);
+            if (_rows[row].Heading is { } heading)
+            {
+                // Group heading: bold, full text color, with a hairline running to the edge (like File Explorer).
+                using var bold = new Font(Font, FontStyle.Bold);
+                var textBounds = Rectangle.Inflate(bounds, -4, 0) with { Y = bounds.Y + RowHeight / 5 };
+                TextRenderer.DrawText(e.Graphics, heading, bold, textBounds, ForeColor,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine | TextFormatFlags.NoPrefix);
+                var lineLeft = textBounds.X + TextRenderer.MeasureText(heading, bold).Width + 4;
+                var lineY = textBounds.Y + textBounds.Height / 2;
+                using var hairline = new Pen(highContrast ? ForeColor : Color.FromArgb((ForeColor.R + BackColor.R * 3) / 4, (ForeColor.G + BackColor.G * 3) / 4, (ForeColor.B + BackColor.B * 3) / 4));
+                if (lineLeft < bounds.Right - 8) e.Graphics.DrawLine(hairline, lineLeft, lineY, bounds.Right - 8, lineY);
+                continue;
+            }
+            var index = _rows[row].Entry;
             var selected = index == _selectedIndex;
             if (selected)
             {
@@ -76,10 +116,16 @@ internal sealed class HistoryList : ScrollableControl
                     e.Graphics.SmoothingMode = smoothing;
                 }
             }
-            TextRenderer.DrawText(e.Graphics, _entries[index].ToString(), Font,
-                Rectangle.Inflate(bounds, -4, 0), selected ? selectionText : ForeColor,
-                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine |
-                TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+            // Day and time in a dimmer fixed column, so the labels line up and get the room.
+            const TextFormatFlags flags = TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine |
+                TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix;
+            var text = selected ? selectionText : ForeColor;
+            var dim = highContrast ? text : Color.FromArgb((text.R * 2 + BackColor.R) / 3, (text.G * 2 + BackColor.G) / 3, (text.B * 2 + BackColor.B) / 3);
+            var column = _whenWidth.GetValueOrDefault(_entries[index].Group);
+            var inner = Rectangle.Inflate(bounds, -4, 0);
+            TextRenderer.DrawText(e.Graphics, _entries[index].When, Font, inner with { Width = column }, dim, flags);
+            TextRenderer.DrawText(e.Graphics, _entries[index].Label, Font,
+                inner with { X = inner.X + column, Width = Math.Max(0, inner.Width - column) }, text, flags);
             if (selected && Focused) ControlPaint.DrawFocusRectangle(e.Graphics, Rectangle.Inflate(bounds, -2, -2),
                 selectionText, selection);
         }
@@ -149,7 +195,8 @@ internal sealed class HistoryList : ScrollableControl
         base.OnMouseDown(e);
         if (e.Button != MouseButtons.Left) return;
         Focus();
-        SelectEntry((Offset + e.Y) / RowHeight);
+        var clicked = (Offset + e.Y) / RowHeight;
+        if (clicked >= 0 && clicked < _rows.Count && _rows[clicked].Entry >= 0) SelectEntry(_rows[clicked].Entry);
     }
 
     public void Select(Guid id)
@@ -157,8 +204,9 @@ internal sealed class HistoryList : ScrollableControl
         var index = _entries.FindIndex(entry => entry.Id == id);
         if (index < 0) return;
         SelectEntry(index);
-        if (index * RowHeight < Offset || (index + 1) * RowHeight > Offset + ClientSize.Height)
-            SetOffset(index * RowHeight - ClientSize.Height / 3);
+        var row = RowOf(index);
+        if (row * RowHeight < Offset || (row + 1) * RowHeight > Offset + ClientSize.Height)
+            SetOffset(row * RowHeight - ClientSize.Height / 3);
         _targetOffset = Offset;
     }
 
@@ -190,7 +238,9 @@ internal sealed class HistoryList : ScrollableControl
         if (next is { } index && _entries.Count > 0)
         {
             SelectEntry(Math.Clamp(index, 0, _entries.Count - 1));
-            var top = _selectedIndex * RowHeight;
+            var top = RowOf(_selectedIndex) * RowHeight;
+            // Keep the group heading above the first item in view too.
+            if (_rows[RowOf(_selectedIndex) - 1].Entry < 0) top -= RowHeight;
             if (top < Offset) ScrollTo(top);
             else if (top + RowHeight > Offset + ClientSize.Height) ScrollTo(top + RowHeight - ClientSize.Height);
             e.Handled = true;
@@ -203,7 +253,7 @@ internal sealed class HistoryList : ScrollableControl
     protected override void OnFontChanged(EventArgs e)
     {
         base.OnFontChanged(e);
-        AutoScrollMinSize = new Size(0, _entries.Count * RowHeight);
+        BuildRows();
         Invalidate();
     }
 
@@ -224,7 +274,7 @@ internal sealed class HistoryList : ScrollableControl
         public override AccessibleRole Role => AccessibleRole.ListItem;
         public override AccessibleObject? Parent => parent;
         public override Rectangle Bounds => owner.RectangleToScreen(new Rectangle(0,
-            Index * owner.RowHeight - owner.Offset, owner.ClientSize.Width, owner.RowHeight));
+            owner.RowOf(Index) * owner.RowHeight - owner.Offset, owner.ClientSize.Width, owner.RowHeight));
         public override AccessibleStates State => AccessibleStates.Selectable | AccessibleStates.Focusable |
             (Index < 0 ? AccessibleStates.Unavailable : AccessibleStates.None) |
             (owner._selectedIndex == Index ? AccessibleStates.Selected : AccessibleStates.None) |

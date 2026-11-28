@@ -50,11 +50,37 @@ internal sealed class CalendarView : Control
         var keep = entries.Select(entry => entry.Id).ToHashSet();
         foreach (var id in _previews.Keys.Where(id => !keep.Contains(id)).ToList()) Forget(id);
         Invalidate();
+        Preload();
+    }
+
+    // Load this week's previews in the background, so opening Calendar shows them at once.
+    public void Preload()
+    {
+        if (!IsHandleCreated)
+        {
+            // Results come back through BeginInvoke, so a hidden calendar needs its handle once the window exists.
+            if (FindForm() is not { IsHandleCreated: true }) return;
+            CreateHandle();
+        }
+        foreach (var day in Week)
+            foreach (var entry in EntriesOn(day))
+                if (!_previews.ContainsKey(entry.Id)) RequestPreview(entry.Id);
     }
 
     public void ShowWeek(DateTime anyDay, bool selectDay = false)
     {
-        _weekStart = StartOfWeek(anyDay.Date);
+        var weekStart = StartOfWeek(anyDay.Date);
+        if (weekStart == _weekStart)
+        {
+            // Same week: keep the loaded previews, only reset the view.
+            if (selectDay) _selected = anyDay.Date;
+            _scroll.Value = 0;
+            _target = 0;
+            WeekChanged?.Invoke(); // the week title still needs its first fill
+            Invalidate();
+            return;
+        }
+        _weekStart = weekStart;
         _selected = selectDay ? anyDay.Date : _weekStart.AddDays(_selected.DayOfWeek - _weekStart.DayOfWeek);
         _scroll.Value = 0;
         _target = 0;
@@ -63,6 +89,7 @@ internal sealed class CalendarView : Control
         foreach (var id in _previews.Keys.ToList()) Forget(id);
         WeekChanged?.Invoke();
         Invalidate();
+        Preload();
     }
 
     private static DateTime StartOfWeek(DateTime day) => day.AddDays(-(int)day.DayOfWeek);

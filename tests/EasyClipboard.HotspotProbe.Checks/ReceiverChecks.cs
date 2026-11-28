@@ -275,6 +275,23 @@ internal static class ReceiverChecks
         Check(!File.Exists(managed) && dropHistory.Find(dropId) is null && File.Exists(ordinary),
             "shared history limits remove the managed Taildrop copy even when new imports are disabled");
 
+        // Fixed name from ECSend, plus the " (1)" copy Windows makes when one is still waiting.
+        var fixedPhoto = Path.Combine(downloads, "EasyClipboard-temp-photo.jpg");
+        var fixedCopy = Path.Combine(downloads, "EasyClipboard-temp-photo (1).JPG");
+        var notOurs = Path.Combine(downloads, "EasyClipboard-temp-photos.jpg");
+        foreach (var path in new[] { fixedPhoto, fixedCopy, notOurs })
+        {
+            bitmap.Save(path, ImageFormat.Jpeg);
+            File.SetLastWriteTimeUtc(path, DateTime.UtcNow.AddSeconds(-10));
+        }
+        dropHistory.Configure(new Preferences(30, 200, 256)); // the limit above was 1 item; this part needs room for two
+        var callsBefore = dropSink.Calls;
+        await ScanDrop(true);
+        var keptFixed = TaildropManaged(dropRoot);
+        Check(!File.Exists(fixedPhoto) && !File.Exists(fixedCopy) && File.Exists(notOurs) && dropSink.Calls == callsBefore + 2 &&
+            keptFixed.Count == 2 && keptFixed.All(id => dropHistory.Find(id) is not null),
+            "fixed-name and (1) Taildrop photos import with fresh IDs; other names stay in Downloads");
+
         var cleanupHistory = new HistoryBank(Path.Combine(root, "duplicate-check"));
         var oldText = TransferValidation.Prepare(request) with { Applied = true };
         var newText = oldText with { Id = Guid.NewGuid(), ReceivedAt = oldText.ReceivedAt.AddSeconds(1) };
@@ -357,6 +374,11 @@ internal static class ReceiverChecks
         listener.Stop();
         return port;
     }
+
+    // IDs of the photos kept in managed Taildrop storage (file names are EasyClipboard-temp-<ID>.<ext>).
+    private static List<Guid> TaildropManaged(string root) =>
+        [.. Directory.EnumerateFiles(Path.Combine(root, "taildrop-temp"), "EasyClipboard-temp-*")
+            .Select(path => Guid.Parse(Path.GetFileNameWithoutExtension(path)["EasyClipboard-temp-".Length..]))];
 
     private sealed class FakeClipboard : IClipboardSink
     {

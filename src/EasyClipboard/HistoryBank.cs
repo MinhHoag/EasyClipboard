@@ -4,7 +4,39 @@ public sealed record HistoryEntry(Guid Id, DateTimeOffset ReceivedAt, string Lab
 {
     public bool IsImage { get; private init; }
 
-    public override string ToString() => $"{ReceivedAt.LocalDateTime:g}   {Label}";
+    public override string ToString() => $"{Group}, {When}   {Label}";
+
+    // List group, like File Explorer: Today, Yesterday, Earlier this week, Last week, Earlier this month, ...
+    public string Group
+    {
+        get
+        {
+            var day = ReceivedAt.LocalDateTime.Date;
+            var today = DateTime.Today;
+            var week = today.AddDays(-(int)today.DayOfWeek); // weeks start Sunday, like the calendar
+            var month = new DateTime(today.Year, today.Month, 1);
+            return day >= today ? "Today" : day == today.AddDays(-1) ? "Yesterday" : day >= week ? "Earlier this week"
+                : day >= week.AddDays(-7) ? "Last week" : day >= month ? "Earlier this month" : day >= month.AddMonths(-1) ? "Last month"
+                : day.Year == today.Year ? "Earlier this year" : "Older";
+        }
+    }
+
+    // Date and time under its group: just the time for Today and Yesterday, the weekday this week and last.
+    public string When
+    {
+        get
+        {
+            var local = ReceivedAt.LocalDateTime;
+            var time = local.ToString("t");
+            return Group switch
+            {
+                "Today" or "Yesterday" => time,
+                "Earlier this week" or "Last week" => $"{local:ddd} {time}",
+                "Older" => $"{local:d} {time}",
+                _ => $"{local:MMM d} {time}"
+            };
+        }
+    }
 
     internal static HistoryEntry Create(Guid id, DateTimeOffset receivedAt, string? text, bool applied) =>
         new(id, receivedAt, text is null ? "Photo / screenshot" : text[..Math.Min(70, text.Length)].Replace('\r', ' ').Replace('\n', ' '), applied)

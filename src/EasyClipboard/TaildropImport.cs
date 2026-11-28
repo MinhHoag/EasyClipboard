@@ -39,6 +39,20 @@ internal sealed class TaildropImport(HistoryBank bank, TransferService transfers
             Guid.TryParseExact(name.AsSpan(Prefix.Length), "D", out id) && id != Guid.Empty;
     }
 
+    // ECSend may instead reuse one fixed name (overwritten on the iPhone, so nothing piles up there).
+    // Windows adds " (1)" when the previous one is still waiting. Each import gets a fresh ID.
+    private static readonly System.Text.RegularExpressions.Regex FixedName =
+        new(@"^EasyClipboard-temp-photo( \(\d+\))?$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+    private static bool TryGetDownloadId(FileInfo file, out Guid id)
+    {
+        if (TryGetId(file, out id)) return true;
+        if (file.Attributes.HasFlag(FileAttributes.ReparsePoint) || file.Extension.ToLowerInvariant() is not (".png" or ".jpeg" or ".jpg") ||
+            !FixedName.IsMatch(Path.GetFileNameWithoutExtension(file.Name))) return false;
+        id = Guid.NewGuid();
+        return true;
+    }
+
     public async Task<(bool Expired, string? Warning)> RunAsync(bool enabled)
     {
         var now = DateTime.UtcNow;
@@ -55,8 +69,9 @@ internal sealed class TaildropImport(HistoryBank bank, TransferService transfers
         string? warning = null;
         foreach (var file in Candidates(_downloads).OrderBy(file => file.LastWriteTimeUtc))
         {
-            if (!TryGetId(file, out var id) || now - file.LastWriteTimeUtc < TimeSpan.FromSeconds(3)) continue;
-            var destination = Path.Combine(_managed, file.Name);
+            if (now - file.LastWriteTimeUtc < TimeSpan.FromSeconds(3) || !TryGetDownloadId(file, out var id)) continue;
+            // Kept under its ID, so cleanup can match it to the history entry whatever name it arrived with.
+            var destination = Path.Combine(_managed, $"{Prefix}{id:D}{file.Extension.ToLowerInvariant()}");
             if (File.Exists(destination)) continue;
             try
             {

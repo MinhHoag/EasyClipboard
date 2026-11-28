@@ -15,15 +15,50 @@ internal sealed class WrapTab : Control
 
     // First tab on the panel's left edge: straight left side, no flare.
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
-    public bool FlushLeft { get => _flushLeft; set { _flushLeft = value; Width = value ? 37 : 42; } } // no left flare, so one foot narrower
+    public bool FlushLeft { get => _flushLeft; set { _flushLeft = value; Width = BaseWidth + (int)_extra; } } // no left flare, so one foot narrower
     private bool _flushLeft;
 
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public bool Active
     {
         get => _active;
-        set { _active = value; AccessibleDescription = value ? "Selected" : null; Invalidate(); }
+        set { _active = value; AccessibleDescription = value ? "Selected" : null; Invalidate(); Grow(); }
     }
+
+    // Test: the active tab shows its name beside the icon, widening smoothly and pushing the others aside.
+    private readonly System.Windows.Forms.Timer _grow = new() { Interval = 15 };
+    private double _extra;
+    private long _lastFrame;
+    private int BaseWidth => LogicalToDeviceUnits(FlushLeft ? 37 : 42);
+    private int IconBox => LogicalToDeviceUnits(32);
+    private int TargetExtra => _active && !string.IsNullOrEmpty(Text) ? TextRenderer.MeasureText(Text, LabelFont).Width + LogicalToDeviceUnits(4) : 0;
+
+    private void Grow()
+    {
+        if (!IsHandleCreated || !Visible || !SystemInformation.UIEffectsEnabled)
+        {
+            _extra = TargetExtra;
+            Width = BaseWidth + (int)_extra;
+            return;
+        }
+        _lastFrame = System.Diagnostics.Stopwatch.GetTimestamp();
+        _grow.Start();
+    }
+
+    private void GrowStep()
+    {
+        var now = System.Diagnostics.Stopwatch.GetTimestamp();
+        var seconds = System.Diagnostics.Stopwatch.GetElapsedTime(_lastFrame, now).TotalSeconds;
+        _lastFrame = now;
+        var difference = TargetExtra - _extra;
+        if (Math.Abs(difference) < 1) { _extra = TargetExtra; _grow.Stop(); }
+        else _extra += difference * (1 - Math.Exp(-seconds / 0.06));
+        Width = BaseWidth + (int)Math.Round(_extra);
+        Invalidate();
+    }
+
+    protected override void OnHandleCreated(EventArgs e) { base.OnHandleCreated(e); _extra = TargetExtra; Width = BaseWidth + (int)_extra; }
+    protected override void OnDpiChangedAfterParent(EventArgs e) { base.OnDpiChangedAfterParent(e); Grow(); }
 
     public WrapTab()
     {
@@ -34,6 +69,7 @@ internal sealed class WrapTab : Control
         Cursor = Cursors.Hand;
         TabStop = true;
         AccessibleRole = AccessibleRole.PageTab;
+        _grow.Tick += (_, _) => GrowStep();
     }
 
     private int Foot => LogicalToDeviceUnits(5);
@@ -46,9 +82,14 @@ internal sealed class WrapTab : Control
         get
         {
             var side = (Icon?.Height ?? 0) + LogicalToDeviceUnits(10); // fits inside the narrower body
-            return new Rectangle((BodyLeft + BodyRight - side) / 2, IconTop + (Icon?.Height ?? 0) / 2 - side / 2, side, side);
+            return new Rectangle(IconCenter - side / 2, IconTop + (Icon?.Height ?? 0) / 2 - side / 2, side, side);
         }
     }
+
+    private Font? _labelFont;
+    private Font LabelFont => _labelFont ??= new Font(Font, FontStyle.Bold);
+    protected override void OnFontChanged(EventArgs e) { _labelFont?.Dispose(); _labelFont = null; base.OnFontChanged(e); }
+    private int IconCenter => BodyLeft + IconBox / 2;
 
     protected override void OnPaint(PaintEventArgs e)
     {
@@ -79,7 +120,20 @@ internal sealed class WrapTab : Control
             graphics.FillPath(fill, hover);
         }
         if (Icon is { } icon)
-            graphics.DrawImageUnscaled(icon, (BodyLeft + BodyRight - icon.Width) / 2, IconTop);
+            graphics.DrawImageUnscaled(icon, IconCenter - icon.Width / 2, IconTop);
+        if (_extra >= 1 && Icon is { } shown)
+        {
+            // Name sits right of the icon; the widening body reveals it.
+            var textLeft = IconCenter + shown.Width / 2 + LogicalToDeviceUnits(4);
+            var clip = Rectangle.FromLTRB(textLeft, 0, BodyRight - LogicalToDeviceUnits(4), Height);
+            if (clip.Width > 0)
+            {
+                graphics.SetClip(clip);
+                TextRenderer.DrawText(graphics, Text, LabelFont, new Rectangle(textLeft, LogicalToDeviceUnits(2), TextRenderer.MeasureText(Text, LabelFont).Width + 2, Height - LogicalToDeviceUnits(2)),
+                    ForeColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine | TextFormatFlags.NoPrefix);
+                graphics.ResetClip();
+            }
+        }
         if (Focused && ShowFocusCues)
             ControlPaint.DrawFocusRectangle(graphics, Rectangle.Inflate(HoverBox, -3, -3));
     }
@@ -97,7 +151,7 @@ internal sealed class WrapTab : Control
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing) Icon?.Dispose();
+        if (disposing) { Icon?.Dispose(); _grow.Dispose(); _labelFont?.Dispose(); }
         base.Dispose(disposing);
     }
 }

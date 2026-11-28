@@ -7,10 +7,10 @@ internal sealed class MainWindow : Form
     private static Color Canvas => SystemInformation.HighContrast ? SystemColors.Control :
         Program.LightTheme ? Color.FromArgb(226, 226, 226) : Color.FromArgb(29, 29, 29);
     internal static Color Surface => SystemInformation.HighContrast ? SystemColors.Window :
-        Program.LightTheme ? Color.FromArgb(243, 243, 243) : Color.Black;
+        Program.LightTheme ? Color.White : Color.Black;
     private static Color AppearanceSurface => SystemInformation.HighContrast || Program.LightTheme ? Surface : Color.FromArgb(34, 34, 34);
     internal static Color TextColor => SystemInformation.HighContrast ? SystemColors.WindowText : Program.LightTheme ? Color.FromArgb(25, 25, 25) : Color.White;
-    internal static Color SelectionColor => Program.LightTheme ? Color.FromArgb(213, 213, 213) : Color.FromArgb(48, 48, 48);
+    internal static Color SelectionColor => Program.LightTheme ? Color.FromArgb(222, 222, 222) : Color.FromArgb(48, 48, 48);
     internal bool RestartRequested { get; private set; }
     internal bool RebuildRequested { get; private set; }
     internal bool ResumeReceivingAfterRestart { get; private set; }
@@ -46,9 +46,9 @@ internal sealed class MainWindow : Form
     private readonly RadioButton _textOnly = new() { Text = "Text", AutoSize = true };
     private readonly TextBox _text = new() { Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, Dock = DockStyle.Fill };
     private readonly PictureBox _image = new() { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom, Visible = false, BackColor = Surface };
-    private readonly Label _status = new() { Text = "Stopped. Pick your network, then press ▶.", AutoSize = true, Dock = DockStyle.Fill };
+    private readonly Label _status = new() { AutoSize = true, Dock = DockStyle.Fill };
     private readonly Label _connection = new() { Text = "Phone requests: off.", AutoSize = true, Dock = DockStyle.Fill };
-    private readonly TextBox _setup = new() { Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, Dock = DockStyle.Fill, Height = 145 };
+    private readonly TextBox _setup = new() { Multiline = true, ReadOnly = true, Dock = DockStyle.Fill, Height = 145 }; // sized to its text, so no scrollbar
     // _start is the play/pause toggle: Start when stopped, then Pause / Resume while receiving.
     private readonly Button _start = IconButton("Start receiving");
     private readonly Button _stop = IconButton("Stop receiving");
@@ -83,11 +83,19 @@ internal sealed class MainWindow : Form
         // Bottom status lines read as labels: no closing period, whichever message is shown.
         foreach (var line in new[] { _status, _connection })
         {
-            line.TextChanged += (_, _) => { if (line.Text.EndsWith('.')) line.Text = line.Text.TrimEnd('.'); };
+            line.TextChanged += (_, _) => { if (line.Text.EndsWith('.')) line.Text = line.Text.TrimEnd('.'); line.Visible = line.Text.Length > 0; };
             line.Text = line.Text.TrimEnd('.'); // the starting text was set before this hook
         }
         Disposed += (_, _) => brandImage.Dispose();
         StyleTextBox(_setup);
+        // One tab stop past the longest label ("Firewall interface ID"), so every value starts in the same column.
+        _setup.HandleCreated += (_, _) =>
+        {
+            var labelWidth = TextRenderer.MeasureText("Firewall interface ID", _setup.Font).Width + LogicalToDeviceUnits(16);
+            var averageChar = TextRenderer.MeasureText("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", _setup.Font).Width / 52.0;
+            var stops = new[] { (int)Math.Ceiling(labelWidth * 4 / averageChar) }; // EM_SETTABSTOPS takes dialog units: 4 per average character
+            SendMessage(_setup.Handle, 0x00CB, 1, stops);
+        };
         StyleTextBox(_text);
         foreach (var combo in new[] { _mode, _interfaces })
         {
@@ -98,7 +106,17 @@ internal sealed class MainWindow : Form
             combo.DrawMode = DrawMode.OwnerDrawFixed;
             combo.DrawItem += (_, e) =>
             {
-                if (e.Index < 0) return;
+                if (e.Index < 0)
+                {
+                    // Empty address box: say what to pick instead of showing a blank field.
+                    if (combo != _interfaces) return;
+                    using var empty = new SolidBrush(Surface);
+                    e.Graphics.FillRectangle(empty, e.Bounds);
+                    TextRenderer.DrawText(e.Graphics, TailscaleMode ? "Pick a Tailscale address" : "Pick a network", e.Font,
+                        Rectangle.Inflate(e.Bounds, -2, 0), DisabledText,
+                        TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+                    return;
+                }
                 var selected = (e.State & DrawItemState.Selected) != 0;
                 using var background = new SolidBrush(selected ? SelectionColor : Surface);
                 e.Graphics.FillRectangle(background, e.Bounds);
@@ -166,7 +184,7 @@ internal sealed class MainWindow : Form
         // Blink between full and dimmed green so the dot never disappears.
         var dimStart = Color.FromArgb((StartColor.R + Canvas.R * 2) / 3, (StartColor.G + Canvas.G * 2) / 3, (StartColor.B + Canvas.B * 2) / 3);
         _blink.Tick += (_, _) => _dot.ForeColor = _dot.ForeColor == StartColor ? dimStart : StartColor;
-        var network = new FlowLayoutPanel { AutoSize = true, Dock = DockStyle.Fill };
+        var network = new FlowLayoutPanel { AutoSize = true, Dock = DockStyle.Fill, WrapContents = false };
         _mode.Items.AddRange(["Home Wi-Fi / LAN (HTTP)", "Home Wi-Fi / LAN (HTTPS)", "Private hotspot (HTTPS)", "Tailscale (encrypted tunnel)"]);
         _mode.SelectedIndex = 3;
         _mode.Visible = _developerUnlocked;
@@ -175,18 +193,26 @@ internal sealed class MainWindow : Form
         pairing.Click += (_, _) => ShowPairing();
         _refresh.Image = CreateRefreshIcon(LogicalToDeviceUnits(18));
         _refresh.Margin = new Padding(0, 3, 6, 8);
-        network.Controls.AddRange([_mode, _interfaces, _refresh, _tailscaleStatus, pairing]);
-        layout.Controls.Add(network);
+        network.Controls.AddRange([_mode, _interfaces, _refresh, _tailscaleStatus]);
+        // Pairing / setup sits on the right edge, under the settings gear.
+        var networkRow = new TableLayoutPanel { AutoSize = true, Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1, Margin = Padding.Empty };
+        networkRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        networkRow.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        pairing.Anchor = AnchorStyles.Top | AnchorStyles.Right; // same top as the row's other controls
+        pairing.Margin = new Padding(0, 0, 0, 8);
+        networkRow.Controls.Add(network, 0, 0);
+        networkRow.Controls.Add(pairing, 1, 0);
+        layout.Controls.Add(networkRow);
         // Tab row: fetch toggle on the left, view tabs on the right, touching the body below.
-        var calendarTab = new WrapTab { Icon = CreateCalendarIcon(LogicalToDeviceUnits(22)), AccessibleName = "Calendar", ActiveColor = CalendarView.HeaderColor };
-        var shopTab = new WrapTab { Icon = CreateCartIcon(LogicalToDeviceUnits(22)), AccessibleName = "Customize", ActiveColor = CalendarView.Page };
+        var calendarTab = new WrapTab { Icon = CreateCalendarIcon(LogicalToDeviceUnits(22)), Text = "Calendar", AccessibleName = "Calendar", ForeColor = TextColor, ActiveColor = CalendarView.HeaderColor };
+        var shopTab = new WrapTab { Icon = CreateCartIcon(LogicalToDeviceUnits(22)), Text = "Customize", AccessibleName = "Customize", ForeColor = TextColor, ActiveColor = CalendarView.Page };
         // Home's wrap joins the setup pane, so it uses that pane's surface color.
-        var homeTab = new WrapTab { Icon = CreateHomeIcon(LogicalToDeviceUnits(22)), AccessibleName = "Home", ActiveColor = Surface, Active = true, FlushLeft = true };
+        var homeTab = new WrapTab { Icon = CreateHomeIcon(LogicalToDeviceUnits(22)), Text = "Home", AccessibleName = "Home", ForeColor = TextColor, ActiveColor = Surface, Active = true, FlushLeft = true };
         _tips.SetToolTip(calendarTab, "Calendar");
         _tips.SetToolTip(shopTab, "Customize");
         _tips.SetToolTip(homeTab, "Home");
         // Home sits flush with the left edge so its wrap runs straight down into the panel.
-        var tabRow = new TableLayoutPanel { AutoSize = true, Dock = DockStyle.Fill, ColumnCount = 4, RowCount = 1, Margin = new Padding(0, 2, 0, 0) };
+        var tabRow = new CompositedTable { AutoSize = true, Dock = DockStyle.Fill, ColumnCount = 4, RowCount = 1, Margin = new Padding(0, 2, 0, 0) };
         foreach (var width in new[] { SizeType.AutoSize, SizeType.AutoSize, SizeType.AutoSize, SizeType.Percent })
             tabRow.ColumnStyles.Add(new ColumnStyle(width, 100));
         tabRow.Controls.Add(homeTab, 0, 0);
@@ -212,6 +238,16 @@ internal sealed class MainWindow : Form
         _pause.CheckedChanged += (_, _) => { _transfers.Paused = _pause.Checked; UpdateReceiverControls(); };
         _allowFetch.CheckedChanged += (_, _) => _clipboardExport.Enabled = _allowFetch.Checked;
         home.Controls.Add(new RoundedPane(_setup) { Margin = new Padding(0, 0, 0, 3), SquareTopLeft = true }); // joins the Home tab
+        // Fit the setup pane to its wrapped lines: pane padding 8 top and bottom, plus the 3 margin below.
+        void FitSetup()
+        {
+            if (!_setup.IsHandleCreated) return;
+            var lines = _setup.GetLineFromCharIndex(Math.Max(0, _setup.TextLength - 1)) + 1;
+            home.RowStyles[0].Height = lines * _setup.Font.Height + 8 + 8 + 3 + 4;
+        }
+        _setup.TextChanged += (_, _) => FitSetup();
+        _setup.SizeChanged += (_, _) => FitSetup();
+        _setup.HandleCreated += (_, _) => FitSetup();
         var split = new SplitContainer { Dock = DockStyle.Fill, Size = new Size(900, 350), SplitterDistance = 350 };
         var history = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 2, BackColor = Surface };
         history.RowStyles.Add(new RowStyle(SizeType.AutoSize));
@@ -355,11 +391,31 @@ internal sealed class MainWindow : Form
         customizePage.Controls.Add(edgeTiles, 0, 2);
         var body = new Panel { Dock = DockStyle.Fill, Margin = Padding.Empty };
         body.Controls.AddRange([home, calendarPage, customizePage]);
+        // Round the page corners like the Home panes; top-left stays square where the tab joins.
+        foreach (var page in new Control[] { calendarPage, customizePage })
+            page.SizeChanged += (_, _) =>
+            {
+                if (SystemInformation.HighContrast || page.Width < 30 || page.Height < 30) return;
+                var d = LogicalToDeviceUnits(20);
+                using var shape = new System.Drawing.Drawing2D.GraphicsPath();
+                shape.AddLine(0, 0, page.Width - d / 2, 0);
+                shape.AddArc(page.Width - d, 0, d, d, 270, 90);
+                shape.AddArc(page.Width - d, page.Height - d, d, d, 0, 90);
+                shape.AddArc(0, page.Height - d, d, d, 90, 90);
+                shape.CloseFigure();
+                page.Region?.Dispose();
+                page.Region = new Region(shape);
+            };
         layout.Controls.Add(body);
+        // Buffer the panels that repaint on a page swap (the edge art lives on layout), so they don't flicker.
+        var buffered = typeof(Control).GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        foreach (var panel in new Control[] { layout, body, home, calendarPage, customizePage }) buffered.SetValue(panel, true);
         void ShowPage(Control page)
         {
             if (page == calendarPage && !calendarPage.Visible) _calendar.ShowWeek(DateTime.Today, selectDay: true);
+            body.SuspendLayout(); // one layout pass for the whole swap
             foreach (Control view in body.Controls) view.Visible = view == page;
+            body.ResumeLayout();
             calendarTab.Active = page == calendarPage;
             shopTab.Active = page == customizePage;
             homeTab.Active = page == home;
@@ -368,6 +424,7 @@ internal sealed class MainWindow : Form
         calendarTab.Click += (_, _) => ShowPage(calendarPage.Visible ? home : calendarPage);
         shopTab.Click += (_, _) => ShowPage(customizePage.Visible ? home : customizePage);
         homeTab.Click += (_, _) => ShowPage(home);
+        Shown += (_, _) => _calendar.Preload(); // before the first Calendar click
         // Double-click a calendar card to see it full size in the home preview.
         _calendar.Activated += entry =>
         {
@@ -498,7 +555,7 @@ internal sealed class MainWindow : Form
                     () => [_start, _stop, titleStack]),
                 new("Network", "Pick this PC's Tailscale address.",
                     () => [network]),
-                new("iPhone setup", "Scan the setup code in Pairing / setup with your Settings Shortcut. These are the values it saves.",
+                new("iPhone setup", "Scan the setup code in Pairing / setup with \"First time Setup\". These are the values it saves.",
                     () => [pairing], ShortcutValues),
                 new("Done", "Everything else is in Settings, including this tour.",
                     () => [settings]),
@@ -546,7 +603,7 @@ internal sealed class MainWindow : Form
     {
         using var dialog = new Form
         {
-            Text = "Settings", ClientSize = new Size(600, 710), StartPosition = FormStartPosition.CenterParent,
+            Text = "Settings", ClientSize = new Size(600, 800), StartPosition = FormStartPosition.CenterParent,
             FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false, BackColor = Canvas, Font = Font
         };
         var options = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(18), ColumnCount = 1, RowCount = 4 };
@@ -636,15 +693,29 @@ internal sealed class MainWindow : Form
         };
         var rerunTour = SettingsButton("Start tour");
         rerunTour.Click += (_, _) => { dialog.Close(); BeginInvoke(() => _startTour?.Invoke()); };
-        // Order: what the app does, how it looks, upkeep, help, then advanced.
+        var repository = new LinkLabel { Text = "GitHub repo", AutoSize = true, Margin = new Padding(0, 0, 12, 0) };
+        var release = new LinkLabel { Text = "Latest release", AutoSize = true, Margin = Padding.Empty };
+        foreach (var (link, url) in new[] { (repository, "https://github.com/MinhHoag/EasyClipboard"), (release, "https://github.com/MinhHoag/EasyClipboard/releases/latest") })
+        {
+            link.LinkColor = link.ActiveLinkColor = link.VisitedLinkColor = Program.LightTheme ? Color.FromArgb(0, 95, 184) : Color.FromArgb(120, 180, 255);
+            link.LinkClicked += (_, _) =>
+            {
+                try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true }); }
+                catch (System.ComponentModel.Win32Exception) { MessageBox.Show(dialog, $"Couldn't open {url}", "Settings"); }
+            };
+        }
+        var links = new FlowLayoutPanel { AutoSize = true, WrapContents = false, Margin = Padding.Empty };
+        links.Controls.AddRange([repository, release]);
+        // Order: help first, what the app does, how it looks, advanced, upkeep, then credits.
+        AddSettingRow("Tour", ("Walk through the main parts of EasyClipboard again.", rerunTour));
         AddSettingRow("EasyClipboard",
             ("History: set limits for saved clipboard items.", storage),
             ("Phone fetch: let your phone get the PC clipboard while receiving. On by default.", fetch));
         options.RowStyles.Add(new RowStyle(SizeType.Absolute, 165));
         options.Controls.Add(SettingsSection("Appearance", appearance), 0, options.Controls.Count);
-        AddSettingRow("Updates", ("Check for a new EasyClipboard version.", updates));
-        AddSettingRow("Tour", ("Walk through the main parts of EasyClipboard again.", rerunTour));
         AddSettingRow("Developer mode", ("Access advanced connection options. Stop receiving before changing this.", developer));
+        AddSettingRow("Updates", ("Check for a new EasyClipboard version.", updates));
+        AddSettingRow("About", ("Made by MinhHoag", links));
         dialog.Controls.Add(options);
         if (dialog.ShowDialog(this) == DialogResult.Retry) Restart();
 
@@ -679,12 +750,12 @@ internal sealed class MainWindow : Form
         var baseUrl = ReceiverBaseUrl();
         var token = _identity.Token;
         (string Shortcut, string Field, string Shown, string? Copy)[] rows = _demo
-            ? [("Send to Laptop", "URL", "[hidden in demo]", null),
-               ("Get from PC", "URL", "[hidden in demo]", null),
-               ("Both", "Authorization header", "Bearer [hidden in demo]", null)]
-            : [("Send to Laptop", "URL", baseUrl is null ? "Pick a network first" : baseUrl + ReceiverServer.SendPath, baseUrl is null ? null : baseUrl + ReceiverServer.SendPath),
-               ("Get from PC", "URL", baseUrl is null ? "Pick a network first" : baseUrl + ReceiverServer.ReceivePath, baseUrl is null ? null : baseUrl + ReceiverServer.ReceivePath),
-               ("Both", "Authorization header", $"Bearer {token[..4]}…{token[^4..]}", $"Bearer {token}")]; // key masked on screen; Copy gets all of it
+            ? [("ECSend", "SendURL", "[hidden in demo]", null),
+               ("ECReceive", "ReceiveURL", "[hidden in demo]", null),
+               ("Both", "Auth Key", "Bearer [hidden in demo]", null)]
+            : [("ECSend", "SendURL", baseUrl is null ? "Pick a network first" : baseUrl + ReceiverServer.SendPath, baseUrl is null ? null : baseUrl + ReceiverServer.SendPath),
+               ("ECReceive", "ReceiveURL", baseUrl is null ? "Pick a network first" : baseUrl + ReceiverServer.ReceivePath, baseUrl is null ? null : baseUrl + ReceiverServer.ReceivePath),
+               ("Both", "Auth Key", $"Bearer {token[..4]}…{token[^4..]}", $"Bearer {token}")]; // key masked on screen; Copy gets all of it
         var table = new TableLayoutPanel { AutoSize = true, ColumnCount = 3, Margin = Padding.Empty };
         var muted = Program.LightTheme ? Color.FromArgb(105, 105, 105) : Color.FromArgb(150, 150, 150);
         var bold = new Font(Font, FontStyle.Bold);
@@ -1058,17 +1129,19 @@ internal sealed class MainWindow : Form
             await server.StartAsync();
             _allowFetch.Checked = _fetchAllowed && _stopRequests == 0 && !_quitting;
             _connection.Text = "Phone requests: none yet. Open the receiver page on your phone to test.";
-            var connection = TailscaleMode ? "Keep both devices connected to your Tailscale network. Different Wi-Fi networks or phone cellular data can be used."
+            var connection = TailscaleMode ? "Works on any Wi-Fi or cellular while both devices are on Tailscale."
                 : HomeMode ? "Keep the iPhone on the same house Wi-Fi / LAN as this laptop." : $"Join private Wi-Fi: {_identity.Ssid}";
             var url = HttpTransport ? $"http://{_binding.Address}:{ReceiverServer.SetupPort}{ReceiverServer.SendPath}"
                 : $"https://{_binding.Address}:{ReceiverServer.TransferPort}{ReceiverServer.SendPath}";
-            var trust = TailscaleMode ? "HTTP travels inside Tailscale's encrypted connection. No iPhone certificate profile is needed."
+            var trust = TailscaleMode ? null
                 : HomeHttp ? "No iPhone profile is needed. HTTP content and the pairing key are unencrypted."
                 : $"Certificate install: http://{_binding.Address}:{ReceiverServer.SetupPort}/install.mobileconfig";
             var fetchUrl = url.Replace(ReceiverServer.SendPath, ReceiverServer.ReceivePath);
-            _setup.Text = $"{connection}\r\nSend to PC URL: {url}\r\nGet from PC URL: {fetchUrl}\r\n{trust}\r\n\r\nOpen Pairing / setup for your key.";
-            if (_developerUnlocked) _setup.AppendText($"\r\nFirewall interface ID: {_binding.InterfaceId}\r\nHistory: {_bank.Root}");
-            _status.Text = "Receiving. Copy on iPhone, then run Send to Laptop.";
+            // Label, tab, value: the values line up in one column.
+            _setup.Text = $"Receiving. Copy on your iPhone, then run ECSend. Run ECReceive to get this PC's clipboard.\r\n{connection}\r\n\r\n" +
+                $"SendURL\t{url}\r\nReceiveURL\t{fetchUrl}" + (trust is null ? "" : $"\r\n\r\n{trust}");
+            if (_developerUnlocked) _setup.AppendText($"\r\nFirewall interface ID\t{_binding.InterfaceId}\r\nHistory folder\t{_bank.Root}");
+            _status.Text = ""; // the setup pane above says it's receiving
         }
         catch (Exception error)
         {
@@ -1139,53 +1212,109 @@ internal sealed class MainWindow : Form
 
     private void ShowPairing()
     {
-        using var dialog = new Form { Text = "Pair your iPhone", ClientSize = new Size(760, 460), StartPosition = FormStartPosition.CenterParent, Font = Font };
-        var contents = new TextBox { Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Both, Dock = DockStyle.Fill, WordWrap = true };
-        dialog.BackColor = Canvas;
-        StyleTextBox(contents);
+        // Charcoal sections like Settings: setup steps with the QR, the three values, then the key notes.
+        using var dialog = new Form { Text = "Pair your iPhone", StartPosition = FormStartPosition.CenterParent, Font = Font, BackColor = Canvas, ForeColor = TextColor };
+        var width = LogicalToDeviceUnits(700);
+        var notes = new Label { AutoSize = true, MaximumSize = new Size(width - LogicalToDeviceUnits(380), 0), Margin = Padding.Empty, Anchor = AnchorStyles.Left };
         if (_demo)
         {
-            contents.Text = "Receiver URL: [hidden]\r\nPairing key: [hidden]\r\nLocal data: %LOCALAPPDATA%\\EasyClipboard";
-            dialog.Controls.Add(contents);
+            notes.Text = "SendURL, ReceiveURL and Auth Key are hidden in demo mode.";
+            dialog.ClientSize = new Size(width, LogicalToDeviceUnits(120));
+            dialog.Controls.Add(new RoundedPane(notes) { Caption = "Pair your iPhone", Padding = new Padding(15, 24, 15, 12), Margin = new Padding(18) });
             dialog.ShowDialog(this);
             return;
         }
         void Update()
         {
-            var network = TailscaleMode ? "Connect your iPhone and laptop to the same Tailscale network. Use the laptop's Tailscale address in the Shortcut."
-                : HomeMode ? "Connect your iPhone to the same house Wi-Fi / LAN as the laptop."
+            var network = HomeMode ? "Connect your iPhone to the same house Wi-Fi / LAN as the laptop."
                 : $"Join Wi-Fi: {_identity.Ssid}\r\nWi-Fi password: {_identity.WifiPassword}";
-            var trust = TailscaleMode ? "Tailscale encrypts the connection between devices. The HTTP receiver binds only its Tailscale IP. No custom certificate profile is needed."
-                : HomeHttp ? "Home HTTP mode needs no iPhone profile. Content and this key travel unencrypted on your network."
-                : $"Root certificate SHA-256 (compare before trusting):\r\n{_identity.Fingerprint}\r\n\r\nRoot name: {_identity.Authority.GetNameInfo(System.Security.Cryptography.X509Certificates.X509NameType.SimpleName, false)}\r\n\r\nInstalling this root grants trust beyond EasyClipboard. See docs/shortcut.md for verification and removal.";
-            contents.Text = $"{network}\r\n\r\nShortcut Authorization header:\r\nBearer {_identity.Token}\r\n\r\n{trust}\r\n\r\nThe pairing key is a secret. Revoking it invalidates the existing Shortcut key. This prototype pairs one phone/key at a time.";
+            var trust = HomeHttp ? "Home HTTP mode needs no iPhone profile. Content and this key travel unencrypted on your network."
+                : $"Root certificate SHA-256 (compare before trusting):\r\n{_identity.Fingerprint}\r\nRoot name: {_identity.Authority.GetNameInfo(System.Security.Cryptography.X509Certificates.X509NameType.SimpleName, false)}\r\nInstalling this root grants trust beyond EasyClipboard. See docs/shortcut.md for verification and removal.";
+            // Tailscale needs only the setup code; the Developer mode networks also need connection and certificate details.
+            notes.Text = TailscaleMode
+                ? "Auth Key works like a password for your clipboard. Keep it private. If it leaks, replace it and run \"First time Setup\" again. Your old Shortcuts stop working until you do.\r\n\r\nTailscale encrypts the connection between your devices, so no certificate profile is needed."
+                : $"{network}\r\n\r\n{trust}\r\n\r\nAuth Key works like a password for your clipboard. Keep it private.";
         }
-        // iPhone setup code inside the guide panel, bottom left: QR beside the same four lines (the panel already shows the key).
-        dialog.ClientSize = new Size(820, 600);
-        var guide = new Panel { Dock = DockStyle.Fill, BackColor = Surface };
-        // A plain row with a fixed height (set below): an auto-sizing docked table here sent layout into a loop.
-        var setup = new FlowLayoutPanel { Dock = DockStyle.Bottom, FlowDirection = FlowDirection.LeftToRight, WrapContents = false, BackColor = Surface, Padding = new Padding(10, 6, 10, 12) };
-        var qrSide = LogicalToDeviceUnits(162); // ~150 px code plus a slim 6 px white border
+        Panel Section(string title, Control contents)
+        {
+            contents.BackColor = AppearanceSurface;
+            return new RoundedPane(contents) { Caption = title, AccessibleName = title, AccessibleRole = AccessibleRole.Grouping, Padding = new Padding(15, 24, 15, 12), Margin = new Padding(0, 0, 0, 12) };
+        }
+
+        // 1. Steps beside the QR code.
+        var qrSide = LogicalToDeviceUnits(150);
         var qr = new PictureBox { Size = new Size(qrSide, qrSide), SizeMode = PictureBoxSizeMode.CenterImage, BackColor = Color.White, Margin = new Padding(0, 0, 16, 0), AccessibleName = "Setup code QR" };
-        var side = new FlowLayoutPanel { AutoSize = true, FlowDirection = FlowDirection.TopDown, WrapContents = false, Margin = Padding.Empty };
-        var setupTitle = new Label { Text = "iPhone setup code", AutoSize = true, Font = new Font(Font, FontStyle.Bold), Margin = new Padding(0, 0, 0, 2) };
-        var setupHint = new Label { Text = "Scan with your Settings Shortcut, or copy the text.", AutoSize = true, ForeColor = DisabledText, Margin = new Padding(0, 0, 0, 8) };
-        var mono = new Font("Consolas", Font.Size * 0.85f);
-        dialog.Disposed += (_, _) => { mono.Dispose(); setupTitle.Font.Dispose(); qr.Image?.Dispose(); };
-        var lines = new TextBox { Multiline = true, ReadOnly = true, WordWrap = false, Font = mono, Width = LogicalToDeviceUnits(520), Height = mono.Height * 4 + LogicalToDeviceUnits(8), AccessibleName = "Setup code text" };
-        StyleTextBox(lines);
+        var steps = new Label
+        {
+            Text = "",
+            AutoSize = true, Margin = new Padding(0, 4, 0, 0)
+        };
+        var mono = new Font("Consolas", Font.Size * 0.9f);
+        var bold = new Font(Font, FontStyle.Bold);
+        dialog.Disposed += (_, _) => { mono.Dispose(); bold.Dispose(); qr.Image?.Dispose(); };
+        // Same order as the screens "First time Setup" shows on the iPhone: its heading in bold, then what to do.
+        steps.Text = "Run \"First time Setup\" on your iPhone, then on each screen:";
+        steps.Margin = new Padding(0, 0, 0, 6);
+        var stepTable = new TableLayoutPanel { AutoSize = true, ColumnCount = 2, Margin = Padding.Empty };
+        stepTable.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        stepTable.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        (string Heading, string Action)[] screens =
+        [
+            ("1. Pick Your PC that installed EasyClipboard", "Choose this PC."),
+            ("2. Setup Instructions", "Tap OK, then scan the code below."),
+            ("3. PC Name, SendURL, ReceiveURL, Auth Key", "Check they match Setup values, tap Done."),
+            ("4. Are these details correct?", "Tap Save."),
+        ];
+        for (var index = 0; index < screens.Length; index++)
+        {
+            stepTable.Controls.Add(new Label { Text = screens[index].Heading, Font = bold, AutoSize = true, Margin = new Padding(0, 2, 14, 2) }, 0, index);
+            stepTable.Controls.Add(new Label { Text = screens[index].Action, AutoSize = true, Margin = new Padding(0, 2, 0, 2) }, 1, index);
+        }
+        var stepStack = new FlowLayoutPanel { AutoSize = true, FlowDirection = FlowDirection.TopDown, WrapContents = false, Margin = Padding.Empty, Dock = DockStyle.Fill }; // Fill so the pane's padding applies
+        stepStack.Controls.AddRange([steps, stepTable]);
+
+        // 2. The three values, named like the Shortcut fields, with Copy all for the full setup code.
+        var values = new TableLayoutPanel { AutoSize = true, ColumnCount = 2, Margin = Padding.Empty };
+        values.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        values.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        var valueLabels = new Label[3];
+        string[] names = ["SendURL", "ReceiveURL", "Auth Key"];
+        for (var index = 0; index < names.Length; index++)
+        {
+            values.Controls.Add(new Label { Text = names[index], Font = bold, AutoSize = true, Margin = new Padding(0, 4, 16, 4) }, 0, index);
+            values.Controls.Add(valueLabels[index] = new Label { Font = mono, AutoSize = true, Margin = new Padding(0, 5, 0, 4) }, 1, index);
+        }
         var copyAll = Button("Copy all");
-        copyAll.Margin = new Padding(0, 8, 0, 0);
-        side.Controls.AddRange([setupTitle, setupHint, lines, copyAll]);
-        setup.Controls.AddRange([qr, side]);
-        setup.Height = Math.Max(qrSide, side.PreferredSize.Height) + setup.Padding.Vertical + 4;
+        copyAll.Margin = new Padding(0, 10, 0, 0);
+        var valueStack = new FlowLayoutPanel { AutoSize = true, FlowDirection = FlowDirection.TopDown, WrapContents = false, Margin = Padding.Empty, Dock = DockStyle.Fill };
+        valueStack.Controls.AddRange([values, copyAll]);
+
+        // 3. Key notes with Replace on the right.
+        var revoke = Button("Replace pairing key");
+        revoke.AutoSize = true;
+        revoke.Anchor = AnchorStyles.Right | AnchorStyles.Top;
+        var keyRow = new TableLayoutPanel { AutoSize = true, ColumnCount = 2, Margin = Padding.Empty, Dock = DockStyle.Fill };
+        keyRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        keyRow.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        notes.Anchor = AnchorStyles.Left | AnchorStyles.Top;
+        keyRow.ColumnStyles.Insert(0, new ColumnStyle(SizeType.AutoSize));
+        keyRow.ColumnCount = 3;
+        var keyText = new FlowLayoutPanel { AutoSize = true, FlowDirection = FlowDirection.TopDown, WrapContents = false, Margin = Padding.Empty, Anchor = AnchorStyles.Left | AnchorStyles.Top };
+        keyText.Controls.Add(notes);
+        keyRow.Controls.Add(qr, 0, 0); // QR bottom left
+        keyRow.Controls.Add(keyText, 1, 0);
+        keyRow.Controls.Add(revoke, 2, 0);
+
         void ShowSetupCode()
         {
             var code = SetupCode();
             qr.Image?.Dispose();
-            qr.Image = code is null ? null : SetupQr(code, qrSide - LogicalToDeviceUnits(12));
+            qr.Image = code is null ? null : SetupQr(code, qrSide);
             qr.Visible = code is not null; // no blank white square before a network is picked
-            lines.Text = code is null ? "Pick a network on the main window first." : code.ReplaceLineEndings("\r\n"); // TextBox needs CRLF to break lines
+            if (qr.Image is { } image) qr.Size = image.Size + new Size(LogicalToDeviceUnits(6), LogicalToDeviceUnits(6)); // thin white border, no empty margin
+            var parts = code?.Split('\n'); // header, SendURL, ReceiveURL, Auth Key
+            for (var index = 0; index < 3; index++)
+                valueLabels[index].Text = parts is null ? (index == 0 ? "Pick a network on the main window first." : "") : parts[index + 1];
             copyAll.Enabled = code is not null;
             copyAll.Text = "Copy all";
         }
@@ -1195,21 +1324,30 @@ internal sealed class MainWindow : Form
             try { Clipboard.SetText(code); copyAll.Text = "Copied"; }
             catch (System.Runtime.InteropServices.ExternalException) { copyAll.Text = "Try again"; }
         };
-        Update();
-        ShowSetupCode();
-        var revoke = Button("Revoke key and create a new one");
-        revoke.Dock = DockStyle.Bottom;
         revoke.Click += (_, _) => Guard(() =>
         {
             _identity.RotateToken();
             Update();
             ShowSetupCode(); // a new key means a new setup code; the old one stops working
         });
-        guide.Controls.Add(contents);
-        guide.Controls.Add(setup);
-        dialog.Shown += (_, _) => { contents.Select(0, 0); copyAll.Focus(); }; // don't open with the whole guide highlighted
-        dialog.Controls.Add(guide);
-        dialog.Controls.Add(revoke);
+        Update();
+        ShowSetupCode();
+
+        var sections = new[] { Section("Set up your iPhone", stepStack), Section("Setup values", valueStack), Section(TailscaleMode ? "Setup code" : "Setup code and connection", keyRow) };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = sections.Length, Padding = new Padding(18, 14, 18, 6), BackColor = Canvas };
+        var height = layout.Padding.Vertical;
+        foreach (var section in sections)
+        {
+            // Fixed row heights from each section's contents (auto-sizing docked panes here can loop).
+            var inner = section.Controls[0];
+            var rowHeight = inner.GetPreferredSize(new Size(width - LogicalToDeviceUnits(66), 0)).Height + section.Padding.Vertical + section.Margin.Vertical + LogicalToDeviceUnits(6);
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, rowHeight));
+            layout.Controls.Add(section);
+            height += rowHeight;
+        }
+        dialog.ClientSize = new Size(width, height);
+        dialog.Controls.Add(layout);
+        dialog.Shown += (_, _) => copyAll.Focus();
         dialog.ShowDialog(this);
     }
 
@@ -1359,7 +1497,7 @@ internal sealed class MainWindow : Form
     {
         if (_demo)
         {
-            _setup.Text = "Send to PC URL: [receiver address hidden]\r\nGet from PC URL: [receiver address hidden]\r\n\r\nLocal data: %LOCALAPPDATA%\\EasyClipboard";
+            _setup.Text = "SendURL\t[receiver address hidden]\r\nReceiveURL\t[receiver address hidden]\r\n\r\nHistory folder\t%LOCALAPPDATA%\\EasyClipboard";
             _status.Text = _demoReceiving ? "Receiving (demo only)." : "Stopped (demo only).";
             _connection.Text = "Phone requests: off in demo.";
             return;
@@ -1369,8 +1507,7 @@ internal sealed class MainWindow : Form
         : HomeMode
         ? $"1. Keep the iPhone and laptop on the same house Wi-Fi / LAN.\r\n2. Select the laptop's active address above, then Start receiving.\r\n3. Open Pairing / setup for the key, and follow docs/shortcut.md.\r\n\r\n{(HomeHttp ? "HTTP mode needs no iPhone profile. Content and pairing key are unencrypted." : "HTTPS mode requires the verified local certificate profile.")}\r\nClosing this window keeps receiving in the tray. Use Quit there to stop."
         : "1. Start the private hotspot.\r\n2. Open Pairing / setup for Wi-Fi credentials and certificate trust.\r\n3. Follow docs/shortcut.md.\r\n\r\nClosing this window keeps receiving in the tray. Use Quit there to stop.";
-        _status.Text = TailscaleMode ? "Stopped. Pick your Tailscale address, then press ▶."
-            : HomeMode ? "Stopped. Pick your network, then press ▶." : "Stopped. Press ▶ to start the hotspot.";
+        _status.Text = ""; // the header already says Stopped and the steps above say what to do
     }
     private static void StyleTextBox(TextBox box)
     {
@@ -1378,6 +1515,18 @@ internal sealed class MainWindow : Form
         box.BorderStyle = BorderStyle.None;
         box.BackColor = Surface;
         box.ForeColor = TextColor;
+    }
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern IntPtr SendMessage(IntPtr window, int message, int count, int[] stops);
+
+    // Tab row: paints itself and its tabs in one off-screen pass, so the sliding tabs show one clean frame at a time.
+    private sealed class CompositedTable : TableLayoutPanel
+    {
+        protected override CreateParams CreateParams
+        {
+            get { var p = base.CreateParams; p.ExStyle |= 0x02000000; return p; } // WS_EX_COMPOSITED, this row only
+        }
     }
 
     private sealed class RoundedPane : Panel
