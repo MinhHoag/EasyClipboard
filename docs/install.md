@@ -71,14 +71,21 @@ You run this once, on first use. It pairs your iPhone with your PC.
 2. Run **First time Setup**. Each step below starts with the heading your iPhone shows.
 3. **Pick Your PC that installed EasyClipboard**: choose your PC. Taildrop also sends your photos there.
 
-<p align="center"><img src="images/guide/taildrop-pick-pc.svg" width="260" alt="First time Setup asking which PC photos should go to, with your PC selected"></p>
+<p align="center"><img src="images/guide/setup-pick-pc.svg" width="240" alt="Pick Your PC that installed EasyClipboard, with your PC highlighted"></p>
 
 4. **Setup Instructions**: tap **OK**, then point the camera at the QR code in Pairing / setup on your PC.
-5. **PC Name, SendURL, ReceiveURL, Auth Key**: check they match **Setup values** on your PC, then tap **Done**.
-6. **Are these details correct?**: tap **Save**.
-7. Tap **Always Allow** on any permission prompts.
 
-<p align="center"><img src="images/guide/scan-setup-code.svg" width="260" alt="First time Setup scanning the setup code and saving SendURL, ReceiveURL and Auth Key"></p>
+<p align="center"><img src="images/guide/setup-instructions.svg" width="240" alt="Setup Instructions asking you to scan the QR code, with OK highlighted"></p>
+
+5. **PC Name, SendURL, ReceiveURL, Auth Key**: check they match **Setup values** on your PC, then tap **Done**.
+
+<p align="center"><img src="images/guide/setup-details.svg" width="240" alt="The values read from the QR code, with Done highlighted"></p>
+
+6. **Are these details correct?**: tap **Save**.
+
+<p align="center"><img src="images/guide/setup-save.svg" width="240" alt="Are these details correct? with Save highlighted"></p>
+
+7. Tap **Always Allow** on any permission prompts.
 
 That's it. ECSend and ECReceive use these saved values from now on, so you don't need to pick or scan again.
 
@@ -130,58 +137,83 @@ Tap **[Get Shortcut][pull]**, then **Add Shortcut**. ECReceive also reads your v
 
 Done.
 
-## Quick use: put it one tap away
+## Put it one tap away
 
-Pick where you want ECSend and ECReceive. Tap a heading to open it.
+Pick where you want ECSend and ECReceive. You can use more than one.
 
-<details>
-<summary><b>Home screen</b></summary>
+| I want to… | Jump to |
+| --- | --- |
+| Press a button on the side of my iPhone | [Action button](#action-button) |
+| Tap it from Control Center | [Control Center](#control-center) |
+| Tap an icon on my home screen | [Home screen](#home-screen) |
+| Tap the back of my phone | [Back Tap](#back-tap) |
+| Pick Send or Receive from one menu | [One menu for both](#one-menu-for-both) |
 
-1. In **Shortcuts**, press and hold **ECSend**.
-2. Tap **Share → Add to Home Screen**, then **Add**.
-3. Repeat for **ECReceive**.
+### Action button
 
-<p align="center"><img src="images/guide/home-screen.svg" width="220" alt="Home screen with Send and Receive icons"></p>
-</details>
+On iPhone 15 Pro and later.
 
-<details>
-<summary><b>Control Center</b> (iOS 18 and later)</summary>
+**One Shortcut:** open **Settings → Action Button**, swipe to **Shortcut**, tap the name under it, and pick **ECSend**.
+
+<p align="center"><img src="images/guide/action-button-ecsend.jpg" width="240" alt="Action Button set to the ECSend Shortcut"></p>
+
+**All three on one button:** put the Shortcuts in a folder and pick the folder instead. No extra Shortcut needed.
+
+1. In **Shortcuts**, tap **Select**, tick **ECSend**, **ECReceive** and **First time Setup**, then tap the folder button at the bottom.
+
+<p align="center"><img src="images/guide/shortcuts-select.svg" width="240" alt="The three EasyClipboard Shortcuts selected, with the folder button highlighted"></p>
+
+2. Tap **New Folder** and name it **EasyClipboard**.
+
+<p align="center"><img src="images/guide/shortcuts-new-folder.svg" width="240" alt="Select a Folder sheet with New Folder highlighted"></p>
+
+3. In **Settings → Action Button**, swipe to **Shortcut**, tap the name under it, and pick your **EasyClipboard** folder. It then reads **Show** followed by the folder's name.
+
+<p align="center"><img src="images/guide/action-button-show-folder.jpg" width="240" alt="Action Button set to Shortcut, showing a folder of Shortcuts"></p>
+
+Pressing the Action button now opens the folder, and you tap the one you want.
+
+<p align="center"><img src="images/guide/action-button-folder.svg" width="240" alt="The Action button opening the EasyClipboard folder with ECSend, ECReceive and First time Setup"></p>
+
+### Control Center
+
+On iOS 18 and later.
 
 1. Swipe down from the top-right corner to open Control Center.
 2. Tap **+** at the top left, then **Add a Control**.
 3. Search for **Shortcut**, tap it, and choose **ECSend**.
 4. Repeat for **ECReceive**.
-</details>
 
-<details>
-<summary><b>Action button</b> (iPhone 15 Pro and later)</summary>
+### Home screen
 
-Put one Shortcut on the button, or a folder that holds all three.
+1. In **Shortcuts**, press and hold **ECSend**.
+2. Tap **Share**, then **Add to Home Screen**.
+3. Optionally rename it to **Send** and pick an icon, then tap **Add**.
+4. Repeat for **ECReceive**, or add just the menu Shortcut below.
 
-**One Shortcut:** open **Settings → Action Button**, swipe to **Shortcut**, tap the name under it, and pick **ECSend**.
+<p align="center"><img src="images/guide/home-screen.svg" width="240" alt="Home screen with Send and Receive icons"></p>
 
-<p align="center"><img src="images/guide/action-button-ecsend.jpg" width="220" alt="Action Button set to the ECSend Shortcut"></p>
+You can also add a **Shortcuts widget** to your home screen to show several Shortcuts at once.
 
-**A folder with all three:**
+### Back Tap
 
-1. In **Shortcuts**, tap **Select**, tick **ECSend**, **ECReceive** and **First time Setup**, then tap the folder button at the bottom.
+Double-tap or triple-tap the back of your iPhone to run a Shortcut.
 
-<p align="center"><img src="images/guide/shortcuts-select.svg" width="220" alt="The three EasyClipboard Shortcuts selected, with the folder button highlighted"></p>
+1. Open **Settings → Accessibility → Touch → Back Tap**.
+2. Choose **Double Tap** or **Triple Tap**.
+3. Scroll to **Shortcuts** and pick **ECSend** or **EasyClipboard Menu**.
 
-2. Tap **New Folder** and name it **EasyClipboard**.
+### One menu for both
 
-<p align="center"><img src="images/guide/shortcuts-new-folder.svg" width="220" alt="Select a Folder sheet with New Folder highlighted"></p>
+For the Action button, the folder above is simpler. For a home screen icon or Back Tap, make a small Shortcut that asks "Send or Receive?":
 
-3. In **Settings → Action Button**, swipe to **Shortcut**, tap the name under it, and pick your **EasyClipboard** folder. It then reads **Show** followed by the folder's name.
+1. In **Shortcuts**, tap **+** to make a new Shortcut. Name it **EasyClipboard Menu**.
+2. Add the **Choose from Menu** action. Set the prompt to *What do you want to do?* and the two items to **Send to PC** and **Receive from PC**.
+3. Under **Send to PC**, add **Run Shortcut** and pick **ECSend**.
+4. Under **Receive from PC**, add **Run Shortcut** and pick **ECReceive**.
+5. Optional: tap the Shortcut's icon to pick a color and symbol.
 
-<p align="center"><img src="images/guide/action-button-show-folder.jpg" width="220" alt="Action Button set to Shortcut, showing a folder of Shortcuts"></p>
-
-Pressing the Action button now opens the folder, and you tap the one you want.
-
-<p align="center"><img src="images/guide/action-button-folder.svg" width="220" alt="The Action button opening the EasyClipboard folder with ECSend, ECReceive and First time Setup"></p>
-</details>
-
-Want both on one button? Make a small menu Shortcut: see [One menu for both](tips.md#one-menu-for-both).
+<p align="center"><img src="images/guide/shortcut-menu.svg" width="240" alt="A menu asking Send to PC or Receive from PC"></p>
 
 ---
 

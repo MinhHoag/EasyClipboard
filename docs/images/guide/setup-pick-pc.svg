@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 560" width="340" height="560" role="img" aria-label="First time Setup asking you to pick your PC">
+<rect x="0" y="0" width="340" height="560" rx="46" fill="#1c1c1e"/>
+<rect x="12" y="12" width="316" height="536" rx="36" fill="#f2f2f7"/>
+<rect x="125" y="24" width="90" height="26" rx="13" fill="#1c1c1e"/>
+<text x="44" y="44" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#1c1c1e" text-anchor="start">9:41</text>
+<circle cx="40" cy="375" r="5" fill="#34C759"/>
+<text x="54" y="380" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="500" fill="#aeaeb2" text-anchor="start">your-iphone</text>
+<text x="40" y="398" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="400" fill="#c7c7cc" text-anchor="start">100.x.y.z</text>
+<circle cx="40" cy="421" r="5" fill="#34C759"/>
+<text x="54" y="426" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="500" fill="#aeaeb2" text-anchor="start">YOUR-PC</text>
+<text x="40" y="444" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="400" fill="#c7c7cc" text-anchor="start">100.x.y.z</text>
+<circle cx="40" cy="467" r="5" fill="#c7c7cc"/>
+<text x="54" y="472" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="500" fill="#aeaeb2" text-anchor="start">other-device</text>
+<text x="40" y="490" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="400" fill="#c7c7cc" text-anchor="start">100.x.y.z</text>
+<text x="170" y="530" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#8e8e93" text-anchor="middle">Pick your PC</text>
+<rect x="24" y="70" width="292" height="196" rx="28" fill="#ffffff" stroke="#d1d1d6"/>
+<text x="44" y="104" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="700" fill="#1c1c1e" text-anchor="start">Pick Your PC that installed</text>
+<text x="44" y="128" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="700" fill="#1c1c1e" text-anchor="start">EasyClipboard</text>
+<rect x="38" y="148" width="264" height="100" rx="20" fill="#f2f2f7" stroke="#FF9500" stroke-width="3"/>
+<rect x="58" y="182" width="30" height="24" rx="4" fill="none" stroke="#1c1c1e" stroke-width="2"/><path d="M58 190 h30 M58 198 h30" stroke="#1c1c1e" stroke-width="2"/>
+<text x="104" y="190" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="600" fill="#1c1c1e" text-anchor="start">YOUR-PC</text>
+<text x="104" y="212" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="500" fill="#8e8e93" text-anchor="start">Online: 100.x.y.z</text>
+<circle cx="302" cy="152" r="13" fill="#FF9500"/>
+<text x="302" y="157" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">1</text>
+</svg>

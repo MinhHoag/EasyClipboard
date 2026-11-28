@@ -41,7 +41,7 @@
 | 1 | Install EasyClipboard on your PC | [Latest release](https://github.com/MinhHoag/EasyClipboard/releases/latest): download and run **Setup** |
 | 2 | Install Tailscale on PC and iPhone, same account | [Set up Tailscale](docs/tailscale-setup.md) |
 | 3 | Turn on Taildrop, install three Shortcuts **in order**, scan the setup code | [Set up your iPhone](docs/install.md) |
-| 4 | Make it one tap: Action button, menu, home screen | [Handy extras](docs/tips.md) |
+| 4 | Make it one tap: Action button, Control Center, home screen, Back Tap | [Put it one tap away](docs/install.md#put-it-one-tap-away) |
 
 When you first open EasyClipboard, a short tour shows you where everything is, including which value goes into which Shortcut field. Rerun it any time from **Settings → Tour**.
 
