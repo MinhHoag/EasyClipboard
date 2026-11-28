@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 1108" width="500" height="1108" role="img" aria-label="First time Setup, every action in order">
+<rect x="0" y="0" width="500" height="1108" rx="28" fill="#f2f2f7"/>
+<text x="250.0" y="48" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="22" font-weight="700" fill="#1c1c1e" text-anchor="middle">First time Setup</text>
+<text x="250.0" y="72" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="13" fill="#8e8e93" text-anchor="middle">Every action, top to bottom. Numbers match the list below.</text>
+<rect x="28" y="110" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="118" width="14" height="14" rx="4" fill="#1c1c1e"/>
+<text x="58" y="129.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Connect to your Tailscale network</tspan></text>
+<rect x="28" y="148" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="156" width="14" height="14" rx="4" fill="#5856D6"/>
+<text x="58" y="167.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Open </tspan><tspan fill="#007AFF">Tailscale</tspan></text>
+<rect x="28" y="186" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="194" width="14" height="14" rx="4" fill="#1c1c1e"/>
+<text x="58" y="205.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Find </tspan><tspan fill="#007AFF">Devices</tspan><tspan fill="#1c1c1e"> where </tspan><tspan fill="#007AFF">Is Online</tspan></text>
+<rect x="28" y="224" width="444" height="30" rx="10" fill="#ffffff" stroke="#FF9500" stroke-width="2.5"/>
+<rect x="36" y="232" width="14" height="14" rx="4" fill="#5AC8FA"/>
+<text x="58" y="243.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Choose from </tspan><tspan fill="#007AFF">Devices</tspan></text>
+<circle cx="486" cy="239.0" r="10" fill="#FF9500"/>
+<text x="486" y="243.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">1</text>
+<rect x="28" y="262" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="270" width="14" height="14" rx="4" fill="#FFCC00"/>
+<text x="58" y="281.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Show alert </tspan><tspan fill="#007AFF">Please Scan the QR Code from Pairing/ Set Up on your PC</tspan></text>
+<rect x="28" y="300" width="444" height="30" rx="10" fill="#ffffff" stroke="#FF9500" stroke-width="2.5"/>
+<rect x="36" y="308" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="58" y="319.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#007AFF">Scan</tspan><tspan fill="#1c1c1e"> QR or barcode</tspan></text>
+<circle cx="486" cy="315.0" r="10" fill="#FF9500"/>
+<text x="486" y="319.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">2</text>
+<rect x="28" y="338" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="346" width="14" height="14" rx="4" fill="#007AFF"/>
+<text x="58" y="357.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Copy </tspan><tspan fill="#007AFF">QR/Barcodes</tspan><tspan fill="#1c1c1e"> to clipboard</tspan></text>
+<rect x="28" y="376" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="384" width="14" height="14" rx="4" fill="#007AFF"/>
+<text x="58" y="395.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Get clipboard</tspan></text>
+<rect x="28" y="414" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="422" width="14" height="14" rx="4" fill="#FFCC00"/>
+<text x="58" y="433.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Split </tspan><tspan fill="#007AFF">Clipboard</tspan><tspan fill="#1c1c1e"> by </tspan><tspan fill="#007AFF">New Lines</tspan></text>
+<rect x="28" y="452" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="460" width="14" height="14" rx="4" fill="#FF9500"/>
+<text x="58" y="471.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Get </tspan><tspan fill="#007AFF">Item at Index</tspan><tspan fill="#1c1c1e"> </tspan><tspan fill="#007AFF">1</tspan><tspan fill="#1c1c1e"> from </tspan><tspan fill="#007AFF">Split Text</tspan></text>
+<rect x="28" y="490" width="444" height="30" rx="10" fill="#ffffff" stroke="#FF9500" stroke-width="2.5"/>
+<rect x="36" y="498" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="58" y="509.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">If </tspan><tspan fill="#007AFF">Item from List</tspan><tspan fill="#1c1c1e"> is not </tspan><tspan fill="#007AFF">EasyClipboard-1</tspan></text>
+<circle cx="486" cy="505.0" r="10" fill="#FF9500"/>
+<text x="486" y="509.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">3</text>
+<line x1="38" y1="520" x2="38" y2="558" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="528" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="536" width="14" height="14" rx="4" fill="#FFCC00"/>
+<text x="84" y="547.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Show alert </tspan><tspan fill="#007AFF">Wrong QR Please Retry</tspan><tspan fill="#1c1c1e"> </tspan><tspan fill="#007AFF">Item from List</tspan></text>
+<line x1="38" y1="558" x2="38" y2="596" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="566" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="574" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="84" y="585.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Stop this shortcut</tspan></text>
+<rect x="28" y="604" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="612" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="58" y="623.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">End If</tspan></text>
+<rect x="28" y="642" width="444" height="30" rx="10" fill="#ffffff" stroke="#FF9500" stroke-width="2.5"/>
+<rect x="36" y="650" width="14" height="14" rx="4" fill="#FF9500"/>
+<text x="58" y="661.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Get </tspan><tspan fill="#007AFF">Item at Index</tspan><tspan fill="#1c1c1e"> </tspan><tspan fill="#007AFF">2</tspan><tspan fill="#1c1c1e"> from </tspan><tspan fill="#007AFF">Split Text</tspan></text>
+<circle cx="486" cy="657.0" r="10" fill="#FF9500"/>
+<text x="486" y="661.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">4</text>
+<rect x="28" y="680" width="444" height="30" rx="10" fill="#ffffff" stroke="#FF9500" stroke-width="2.5"/>
+<rect x="36" y="688" width="14" height="14" rx="4" fill="#FF9500"/>
+<text x="58" y="699.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Get </tspan><tspan fill="#007AFF">Item at Index</tspan><tspan fill="#1c1c1e"> </tspan><tspan fill="#007AFF">3</tspan><tspan fill="#1c1c1e"> from </tspan><tspan fill="#007AFF">Split Text</tspan></text>
+<circle cx="486" cy="695.0" r="10" fill="#FF9500"/>
+<text x="486" y="699.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">4</text>
+<rect x="28" y="718" width="444" height="30" rx="10" fill="#ffffff" stroke="#FF9500" stroke-width="2.5"/>
+<rect x="36" y="726" width="14" height="14" rx="4" fill="#FF9500"/>
+<text x="58" y="737.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Get </tspan><tspan fill="#007AFF">Item at Index</tspan><tspan fill="#1c1c1e"> </tspan><tspan fill="#007AFF">4</tspan><tspan fill="#1c1c1e"> from </tspan><tspan fill="#007AFF">Split Text</tspan></text>
+<circle cx="486" cy="733.0" r="10" fill="#FF9500"/>
+<text x="486" y="737.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">4</text>
+<rect x="28" y="756" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="764" width="14" height="14" rx="4" fill="#FFCC00"/>
+<text x="58" y="775.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Show </tspan><tspan fill="#007AFF">PC Name</tspan><tspan fill="#1c1c1e">, </tspan><tspan fill="#007AFF">SendURL</tspan><tspan fill="#1c1c1e">, </tspan><tspan fill="#007AFF">ReceiveURL</tspan><tspan fill="#1c1c1e">, </tspan><tspan fill="#007AFF">AuthKey</tspan></text>
+<rect x="28" y="794" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="802" width="14" height="14" rx="4" fill="#5AC8FA"/>
+<text x="58" y="813.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Choose from menu with </tspan><tspan fill="#007AFF">Are these details correct?</tspan></text>
+<rect x="28" y="832" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="840" width="14" height="14" rx="4" fill="#5AC8FA"/>
+<text x="58" y="851.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Save</tspan></text>
+<line x1="38" y1="862" x2="38" y2="900" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="870" width="418" height="30" rx="10" fill="#ffffff" stroke="#FF9500" stroke-width="2.5"/>
+<rect x="62" y="878" width="14" height="14" rx="4" fill="#FF9500"/>
+<text x="84" y="889.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Dictionary: </tspan><tspan fill="#007AFF">Auth Key</tspan><tspan fill="#1c1c1e">, </tspan><tspan fill="#007AFF">ReceiveURL</tspan><tspan fill="#1c1c1e">, </tspan><tspan fill="#007AFF">SendURL</tspan><tspan fill="#1c1c1e">, </tspan><tspan fill="#007AFF">PC Name</tspan></text>
+<circle cx="486" cy="885.0" r="10" fill="#FF9500"/>
+<text x="486" y="889.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">5</text>
+<line x1="38" y1="900" x2="38" y2="938" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="908" width="418" height="30" rx="10" fill="#ffffff" stroke="#FF9500" stroke-width="2.5"/>
+<rect x="62" y="916" width="14" height="14" rx="4" fill="#5AC8FA"/>
+<text x="84" y="927.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Store </tspan><tspan fill="#007AFF">Dictionary</tspan><tspan fill="#1c1c1e"> as </tspan><tspan fill="#007AFF">EasyClipboardInfo</tspan></text>
+<circle cx="486" cy="923.0" r="10" fill="#FF9500"/>
+<text x="486" y="927.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">5</text>
+<line x1="38" y1="938" x2="38" y2="976" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="946" width="418" height="30" rx="10" fill="#ffffff" stroke="#FF9500" stroke-width="2.5"/>
+<rect x="62" y="954" width="14" height="14" rx="4" fill="#007AFF"/>
+<text x="84" y="965.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Create folder in </tspan><tspan fill="#007AFF">On My iPhone</tspan><tspan fill="#1c1c1e"> at </tspan><tspan fill="#007AFF">EasyClipboard</tspan></text>
+<circle cx="486" cy="961.0" r="10" fill="#FF9500"/>
+<text x="486" y="965.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">6</text>
+<rect x="28" y="984" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="992" width="14" height="14" rx="4" fill="#5AC8FA"/>
+<text x="58" y="1003.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Cancel</tspan></text>
+<line x1="38" y1="1014" x2="38" y2="1052" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="1022" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="1030" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="84" y="1041.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Stop this shortcut</tspan></text>
+<rect x="28" y="1060" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="1068" width="14" height="14" rx="4" fill="#5AC8FA"/>
+<text x="58" y="1079.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">End Menu</tspan></text>
+</svg>

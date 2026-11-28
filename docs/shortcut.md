@@ -4,7 +4,7 @@ This manual recipe uses native Shortcuts actions and incorporates the user's rea
 
 The user has since reported successful home HTTP text/photo transfers after the adjustments below. For the new Tailscale connection, follow [tailscale.md](tailscale.md): change both POST URLs to the laptop's stable Tailscale IP and keep the working payload/header setup.
 
-## House Wi-Fi setup — no profile
+## House Wi-Fi setup (no profile)
 
 This is the selected prototype workflow:
 
@@ -17,7 +17,7 @@ The pairing key is still required and revocable. HTTP sends it and clipboard con
 
 If the laptop's address changes, update the Shortcut URL and scoped firewall rule. A DHCP reservation on your home router can keep the laptop address stable; no port forwarding is needed. If the phone cannot reach the laptop, check [setup.md](setup.md), including guest Wi-Fi isolation.
 
-## Optional HTTPS certificate setup — skip for home HTTP
+## Optional HTTPS certificate setup (skip for home HTTP)
 
 1. For home HTTPS, choose **Home Wi-Fi / LAN (HTTPS)**, select the home interface, and **Start receiving**. For private hotspot HTTPS, choose that mode and **Start hotspot**, keeping Windows Mobile Hotspot off. Open **Pairing / setup**.
 2. For home HTTPS, keep the iPhone on the house Wi-Fi. For private hotspot HTTPS, join the exact Wi-Fi name/password from the app. Stay connected if iOS reports no internet; that private link does not forward internet.
@@ -73,7 +73,7 @@ Create a Shortcut named **Send to Laptop**. Use magic variables for values below
 
    - **Set Variable** `Response` to that action's output.
 8. After that **End If**, use **Get Dictionary from Input** on `Response` if it was not already interpreted as a dictionary.
-9. Use **Get Dictionary Value** to read `ok`, `saved`, and `clipboardUpdated`. Add nested **If** checks that each equals Boolean true (not merely “has any value”). Only inside all three true branches add **Show Notification** (`Sent to Laptop — saved and ready to paste`).
+9. Use **Get Dictionary Value** to read `ok`, `saved`, and `clipboardUpdated`. Add nested **If** checks that each equals Boolean true (not merely “has any value”). Only inside all three true branches add **Show Notification** (`Sent to Laptop. Saved and ready to paste`).
 10. On a missing/false value, **Show Alert** with `Response`, then stop. Do not put a success notification after the If branches unconditionally.
 
 The receiver sends success only after history and clipboard completion. A successful duplicate retry also returns all three true flags. Native Shortcuts may itself stop Get Contents of URL on network/HTTP failure before the dictionary checks run; that is failure, not successful delivery. This recipe has no general-purpose try/catch wrapper. Error-body availability depends on iOS behavior.
@@ -102,4 +102,4 @@ Apple documents [JSON POST bodies](https://support.apple.com/en-gb/guide/shortcu
 
 For an uncertain response, retry using the **same TransferID and payload**. Simply pressing the Shortcut button again creates a new transfer intentionally. To add manual Retry, repeat the HTTP action behind a Retry choice while keeping this invocation's variables. Automatic retries are not included in this basic recipe.
 
-**Revoke key and create a new one** immediately invalidates the old key for subsequent requests. This prototype has one pairing slot. On retirement, delete the Shortcut and remove the scoped firewall rule from [setup.md](setup.md). If you previously used HTTPS, remove its EasyClipboard certificate profile under **VPN & Device Management**; home HTTP requires none.
+**Replace pairing key** (in **Pairing / setup**) immediately invalidates the old key for subsequent requests. This prototype has one pairing slot. On retirement, delete the Shortcut and remove the scoped firewall rule from [setup.md](setup.md). If you previously used HTTPS, remove its EasyClipboard certificate profile under **VPN & Device Management**; home HTTP requires none.

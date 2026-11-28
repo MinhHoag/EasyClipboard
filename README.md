@@ -22,12 +22,7 @@
 - **History:** every item is kept on your PC, encrypted, with a calendar that sorts it by day.
 - **Private:** it runs over [Tailscale](https://tailscale.com), your own private network, so it works on any Wi-Fi or cellular. No cloud service stores your clipboard.
 
-```mermaid
-flowchart LR
-    I["iPhone<br/>Shortcut"] -- "text and photos<br/>(Tailscale)" --> P["EasyClipboard<br/>on your PC"]
-    P -- "Ctrl+V" --> A["Any app"]
-    P -. "Receive" .-> I
-```
+<p align="center"><img src="docs/images/how-it-works.svg" width="780" alt="Send: copy on iPhone, run ECSend, it travels over Tailscale to EasyClipboard on the PC, then Ctrl+V in any app. Receive: copy on the PC, run ECReceive on the iPhone, EasyClipboard replies over Tailscale, then paste on the iPhone."></p>
 
 ## Screenshots
 

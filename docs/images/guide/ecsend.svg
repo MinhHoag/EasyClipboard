@@ -1,0 +1,311 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 2818" width="500" height="2818" role="img" aria-label="ECSend, every action in order">
+<rect x="0" y="0" width="500" height="2818" rx="28" fill="#f2f2f7"/>
+<text x="250.0" y="48" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="22" font-weight="700" fill="#1c1c1e" text-anchor="middle">ECSend</text>
+<text x="250.0" y="72" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="13" fill="#8e8e93" text-anchor="middle">Every action, top to bottom. Numbers match the list below.</text>
+<rect x="28" y="110" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="118" width="14" height="14" rx="4" fill="#007AFF"/>
+<text x="58" y="129.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Get clipboard</tspan></text>
+<rect x="28" y="148" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="156" width="14" height="14" rx="4" fill="#FF9500"/>
+<text x="58" y="167.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Set variable </tspan><tspan fill="#007AFF">Item</tspan><tspan fill="#1c1c1e"> to </tspan><tspan fill="#007AFF">Clipboard</tspan></text>
+<rect x="28" y="186" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="194" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="58" y="205.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">If </tspan><tspan fill="#007AFF">Clipboard</tspan><tspan fill="#1c1c1e"> has any value</tspan></text>
+<line x1="38" y1="216" x2="38" y2="254" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="224" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="232" width="14" height="14" rx="4" fill="#1c1c1e"/>
+<text x="84" y="243.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Connect to your Tailscale network</tspan></text>
+<line x1="38" y1="254" x2="38" y2="292" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="262" width="418" height="30" rx="10" fill="#ffffff" stroke="#FF9500" stroke-width="2.5"/>
+<rect x="62" y="270" width="14" height="14" rx="4" fill="#5AC8FA"/>
+<text x="84" y="281.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Get </tspan><tspan fill="#007AFF">EasyClipboardInfo</tspan></text>
+<circle cx="486" cy="277.0" r="10" fill="#FF9500"/>
+<text x="486" y="281.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">1</text>
+<line x1="38" y1="292" x2="38" y2="330" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="300" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="308" width="14" height="14" rx="4" fill="#FF9500"/>
+<text x="84" y="319.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Get Value for </tspan><tspan fill="#007AFF">PC Name</tspan><tspan fill="#1c1c1e"> in </tspan><tspan fill="#007AFF">EasyClipboardInfo</tspan></text>
+<line x1="38" y1="330" x2="38" y2="368" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="338" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="346" width="14" height="14" rx="4" fill="#FF9500"/>
+<text x="84" y="357.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Get Value for </tspan><tspan fill="#007AFF">Auth Key</tspan><tspan fill="#1c1c1e"> in </tspan><tspan fill="#007AFF">EasyClipboardInfo</tspan></text>
+<line x1="38" y1="368" x2="38" y2="406" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="376" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="384" width="14" height="14" rx="4" fill="#FF9500"/>
+<text x="84" y="395.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Get Value for </tspan><tspan fill="#007AFF">SendURL</tspan><tspan fill="#1c1c1e"> in </tspan><tspan fill="#007AFF">EasyClipboardInfo</tspan></text>
+<rect x="28" y="414" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="422" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="58" y="433.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Otherwise</tspan></text>
+<line x1="38" y1="444" x2="38" y2="482" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="452" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="460" width="14" height="14" rx="4" fill="#FFCC00"/>
+<text x="84" y="471.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Show alert </tspan><tspan fill="#007AFF">Clipboard empty</tspan></text>
+<line x1="38" y1="482" x2="38" y2="520" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="490" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="498" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="84" y="509.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Stop this shortcut</tspan></text>
+<rect x="28" y="528" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="536" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="58" y="547.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">End If</tspan></text>
+<rect x="28" y="566" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="574" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="58" y="585.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Get type of </tspan><tspan fill="#007AFF">Item</tspan></text>
+<rect x="28" y="604" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="612" width="14" height="14" rx="4" fill="#FF3B30"/>
+<text x="58" y="623.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#007AFF">Current Date</tspan></text>
+<rect x="28" y="642" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="650" width="14" height="14" rx="4" fill="#FF9500"/>
+<text x="58" y="661.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Set variable </tspan><tspan fill="#007AFF">TransferID</tspan><tspan fill="#1c1c1e"> to </tspan><tspan fill="#007AFF">Date</tspan></text>
+<rect x="28" y="680" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="688" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="58" y="699.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">If </tspan><tspan fill="#007AFF">Type</tspan><tspan fill="#1c1c1e"> is </tspan><tspan fill="#007AFF">Photo Media</tspan><tspan fill="#1c1c1e"> or </tspan><tspan fill="#007AFF">Image</tspan></text>
+<line x1="38" y1="710" x2="38" y2="748" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="718" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="726" width="14" height="14" rx="4" fill="#007AFF"/>
+<text x="84" y="737.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Get </tspan><tspan fill="#007AFF">File Extension</tspan><tspan fill="#1c1c1e"> from </tspan><tspan fill="#007AFF">Clipboard</tspan></text>
+<line x1="38" y1="748" x2="38" y2="786" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="756" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="764" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="84" y="775.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">If </tspan><tspan fill="#007AFF">File Extension</tspan><tspan fill="#1c1c1e"> is </tspan><tspan fill="#007AFF">jpeg</tspan><tspan fill="#1c1c1e">, </tspan><tspan fill="#007AFF">png</tspan><tspan fill="#1c1c1e"> or </tspan><tspan fill="#007AFF">jpg</tspan></text>
+<line x1="38" y1="786" x2="38" y2="824" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="64" y1="786" x2="64" y2="824" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="80" y="794" width="392" height="30" rx="10" fill="#ffffff" stroke="#FF9500" stroke-width="2.5"/>
+<rect x="88" y="802" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="110" y="813.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Set name of </tspan><tspan fill="#007AFF">Item</tspan><tspan fill="#1c1c1e"> to </tspan><tspan fill="#007AFF">EasyClipboard-temp-photo</tspan></text>
+<circle cx="486" cy="809.0" r="10" fill="#FF9500"/>
+<text x="486" y="813.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">2</text>
+<line x1="38" y1="824" x2="38" y2="862" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="832" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="840" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="84" y="851.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Otherwise</tspan></text>
+<line x1="38" y1="862" x2="38" y2="900" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="64" y1="862" x2="64" y2="900" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="80" y="870" width="392" height="30" rx="10" fill="#ffffff"/>
+<rect x="88" y="878" width="14" height="14" rx="4" fill="#007AFF"/>
+<text x="110" y="889.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Convert </tspan><tspan fill="#007AFF">Item</tspan><tspan fill="#1c1c1e"> to </tspan><tspan fill="#007AFF">JPEG</tspan></text>
+<line x1="38" y1="900" x2="38" y2="938" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="64" y1="900" x2="64" y2="938" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="80" y="908" width="392" height="30" rx="10" fill="#ffffff" stroke="#FF9500" stroke-width="2.5"/>
+<rect x="88" y="916" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="110" y="927.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Set name of </tspan><tspan fill="#007AFF">Converted Image</tspan><tspan fill="#1c1c1e"> to </tspan><tspan fill="#007AFF">EasyClipboard-temp-photo</tspan></text>
+<circle cx="486" cy="923.0" r="10" fill="#FF9500"/>
+<text x="486" y="927.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">2</text>
+<line x1="38" y1="938" x2="38" y2="976" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="946" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="954" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="84" y="965.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">End If</tspan></text>
+<line x1="38" y1="976" x2="38" y2="1014" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="984" width="418" height="30" rx="10" fill="#ffffff" stroke="#FF9500" stroke-width="2.5"/>
+<rect x="62" y="992" width="14" height="14" rx="4" fill="#007AFF"/>
+<text x="84" y="1003.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Save </tspan><tspan fill="#007AFF">If Result</tspan><tspan fill="#1c1c1e"> to </tspan><tspan fill="#007AFF">EasyClipboard</tspan></text>
+<circle cx="486" cy="999.0" r="10" fill="#FF9500"/>
+<text x="486" y="1003.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">3</text>
+<line x1="38" y1="1014" x2="38" y2="1052" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="1022" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="1030" width="14" height="14" rx="4" fill="#1c1c1e"/>
+<text x="84" y="1041.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Find </tspan><tspan fill="#007AFF">Devices</tspan></text>
+<line x1="38" y1="1052" x2="38" y2="1090" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="1060" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="1068" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="84" y="1079.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Repeat with each item in </tspan><tspan fill="#007AFF">Name</tspan></text>
+<line x1="38" y1="1090" x2="38" y2="1128" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="64" y1="1090" x2="64" y2="1128" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="80" y="1098" width="392" height="30" rx="10" fill="#ffffff"/>
+<rect x="88" y="1106" width="14" height="14" rx="4" fill="#FFCC00"/>
+<text x="110" y="1117.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Get text from </tspan><tspan fill="#007AFF">Repeat Item</tspan></text>
+<line x1="38" y1="1128" x2="38" y2="1166" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="64" y1="1128" x2="64" y2="1166" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="80" y="1136" width="392" height="30" rx="10" fill="#ffffff" stroke="#FF9500" stroke-width="2.5"/>
+<rect x="88" y="1144" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="110" y="1155.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">If </tspan><tspan fill="#007AFF">Text</tspan><tspan fill="#1c1c1e"> is </tspan><tspan fill="#007AFF">PC Name</tspan></text>
+<circle cx="486" cy="1151.0" r="10" fill="#FF9500"/>
+<text x="486" y="1155.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">4</text>
+<line x1="38" y1="1166" x2="38" y2="1204" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="64" y1="1166" x2="64" y2="1204" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="90" y1="1166" x2="90" y2="1204" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="106" y="1174" width="366" height="30" rx="10" fill="#ffffff"/>
+<rect x="114" y="1182" width="14" height="14" rx="4" fill="#FF9500"/>
+<text x="136" y="1193.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Set variable </tspan><tspan fill="#007AFF">Index</tspan><tspan fill="#1c1c1e"> to </tspan><tspan fill="#007AFF">Repeat Index</tspan></text>
+<line x1="38" y1="1204" x2="38" y2="1242" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="64" y1="1204" x2="64" y2="1242" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="80" y="1212" width="392" height="30" rx="10" fill="#ffffff"/>
+<rect x="88" y="1220" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="110" y="1231.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">End If</tspan></text>
+<line x1="38" y1="1242" x2="38" y2="1280" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="1250" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="1258" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="84" y="1269.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">End Repeat</tspan></text>
+<line x1="38" y1="1280" x2="38" y2="1318" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="1288" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="1296" width="14" height="14" rx="4" fill="#FF9500"/>
+<text x="84" y="1307.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Get </tspan><tspan fill="#007AFF">Item at Index</tspan><tspan fill="#1c1c1e"> </tspan><tspan fill="#007AFF">Index</tspan><tspan fill="#1c1c1e"> from </tspan><tspan fill="#007AFF">Devices</tspan></text>
+<line x1="38" y1="1318" x2="38" y2="1356" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="1326" width="418" height="30" rx="10" fill="#ffffff" stroke="#FF9500" stroke-width="2.5"/>
+<rect x="62" y="1334" width="14" height="14" rx="4" fill="#1c1c1e"/>
+<text x="84" y="1345.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Send </tspan><tspan fill="#007AFF">Saved File</tspan><tspan fill="#1c1c1e"> to </tspan><tspan fill="#007AFF">Item from List</tspan></text>
+<circle cx="486" cy="1341.0" r="10" fill="#FF9500"/>
+<text x="486" y="1345.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">5</text>
+<line x1="38" y1="1356" x2="38" y2="1394" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="1364" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="1372" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="84" y="1383.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Stop this shortcut</tspan></text>
+<rect x="28" y="1402" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="1410" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="58" y="1421.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Otherwise</tspan></text>
+<line x1="38" y1="1432" x2="38" y2="1470" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="1440" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="1448" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="84" y="1459.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">If </tspan><tspan fill="#007AFF">Type</tspan><tspan fill="#1c1c1e"> is not </tspan><tspan fill="#007AFF">Text</tspan></text>
+<line x1="38" y1="1470" x2="38" y2="1508" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="64" y1="1470" x2="64" y2="1508" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="80" y="1478" width="392" height="30" rx="10" fill="#ffffff"/>
+<rect x="88" y="1486" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="110" y="1497.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">If </tspan><tspan fill="#007AFF">Type</tspan><tspan fill="#1c1c1e"> is not </tspan><tspan fill="#007AFF">Rich Text</tspan></text>
+<line x1="38" y1="1508" x2="38" y2="1546" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="64" y1="1508" x2="64" y2="1546" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="90" y1="1508" x2="90" y2="1546" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="106" y="1516" width="366" height="30" rx="10" fill="#ffffff"/>
+<rect x="114" y="1524" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="136" y="1535.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">If </tspan><tspan fill="#007AFF">Type</tspan><tspan fill="#1c1c1e"> is not </tspan><tspan fill="#007AFF">URL</tspan></text>
+<line x1="38" y1="1546" x2="38" y2="1584" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="64" y1="1546" x2="64" y2="1584" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="90" y1="1546" x2="90" y2="1584" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="116" y1="1546" x2="116" y2="1584" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="132" y="1554" width="340" height="30" rx="10" fill="#ffffff"/>
+<rect x="140" y="1562" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="162" y="1573.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">If </tspan><tspan fill="#007AFF">Type</tspan><tspan fill="#1c1c1e"> is not </tspan><tspan fill="#007AFF">URL Text</tspan></text>
+<line x1="38" y1="1584" x2="38" y2="1622" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="64" y1="1584" x2="64" y2="1622" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="90" y1="1584" x2="90" y2="1622" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="116" y1="1584" x2="116" y2="1622" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="142" y1="1584" x2="142" y2="1622" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="158" y="1592" width="314" height="30" rx="10" fill="#ffffff"/>
+<rect x="166" y="1600" width="14" height="14" rx="4" fill="#FFCC00"/>
+<text x="188" y="1611.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Show alert </tspan><tspan fill="#007AFF">Type is not supported</tspan></text>
+<line x1="38" y1="1622" x2="38" y2="1660" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="64" y1="1622" x2="64" y2="1660" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="90" y1="1622" x2="90" y2="1660" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="116" y1="1622" x2="116" y2="1660" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="142" y1="1622" x2="142" y2="1660" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="158" y="1630" width="314" height="30" rx="10" fill="#ffffff"/>
+<rect x="166" y="1638" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="188" y="1649.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Stop this shortcut</tspan></text>
+<line x1="38" y1="1660" x2="38" y2="1698" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="64" y1="1660" x2="64" y2="1698" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="90" y1="1660" x2="90" y2="1698" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="116" y1="1660" x2="116" y2="1698" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="132" y="1668" width="340" height="30" rx="10" fill="#ffffff"/>
+<rect x="140" y="1676" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="162" y="1687.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">End If</tspan></text>
+<line x1="38" y1="1698" x2="38" y2="1736" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="64" y1="1698" x2="64" y2="1736" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="90" y1="1698" x2="90" y2="1736" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="106" y="1706" width="366" height="30" rx="10" fill="#ffffff"/>
+<rect x="114" y="1714" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="136" y="1725.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">End If</tspan></text>
+<line x1="38" y1="1736" x2="38" y2="1774" stroke="#c7c7cc" stroke-width="2"/>
+<line x1="64" y1="1736" x2="64" y2="1774" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="80" y="1744" width="392" height="30" rx="10" fill="#ffffff"/>
+<rect x="88" y="1752" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="110" y="1763.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">End If</tspan></text>
+<line x1="38" y1="1774" x2="38" y2="1812" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="1782" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="1790" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="84" y="1801.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">End If</tspan></text>
+<line x1="38" y1="1812" x2="38" y2="1850" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="1820" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="1828" width="14" height="14" rx="4" fill="#FFCC00"/>
+<text x="84" y="1839.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Get text from </tspan><tspan fill="#007AFF">Item</tspan></text>
+<line x1="38" y1="1850" x2="38" y2="1888" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="1858" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="1866" width="14" height="14" rx="4" fill="#FF9500"/>
+<text x="84" y="1877.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Set variable </tspan><tspan fill="#007AFF">Payload</tspan><tspan fill="#1c1c1e"> to </tspan><tspan fill="#007AFF">Text</tspan></text>
+<line x1="38" y1="1888" x2="38" y2="1926" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="1896" width="418" height="30" rx="10" fill="#ffffff" stroke="#FF9500" stroke-width="2.5"/>
+<rect x="62" y="1904" width="14" height="14" rx="4" fill="#34C759"/>
+<text x="84" y="1915.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Get contents of </tspan><tspan fill="#007AFF">SendURL</tspan></text>
+<circle cx="486" cy="1911.0" r="10" fill="#FF9500"/>
+<text x="486" y="1915.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">6</text>
+<line x1="38" y1="1926" x2="38" y2="1964" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="1934" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="1942" width="14" height="14" rx="4" fill="#FF9500"/>
+<text x="84" y="1953.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Set variable </tspan><tspan fill="#007AFF">Response</tspan><tspan fill="#1c1c1e"> to </tspan><tspan fill="#007AFF">Contents of URL</tspan></text>
+<rect x="28" y="1972" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="1980" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="58" y="1991.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">End If</tspan></text>
+<rect x="28" y="2010" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="2018" width="14" height="14" rx="4" fill="#FF9500"/>
+<text x="58" y="2029.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Get dictionary from </tspan><tspan fill="#007AFF">Response</tspan></text>
+<rect x="28" y="2048" width="444" height="30" rx="10" fill="#ffffff" stroke="#FF9500" stroke-width="2.5"/>
+<rect x="36" y="2056" width="14" height="14" rx="4" fill="#FF9500"/>
+<text x="58" y="2067.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Get Value for </tspan><tspan fill="#007AFF">ok</tspan><tspan fill="#1c1c1e"> in </tspan><tspan fill="#007AFF">Dictionary</tspan></text>
+<circle cx="486" cy="2063.0" r="10" fill="#FF9500"/>
+<text x="486" y="2067.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">7</text>
+<rect x="28" y="2086" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="2094" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="58" y="2105.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">If </tspan><tspan fill="#007AFF">Dictionary Value</tspan><tspan fill="#1c1c1e"> is </tspan><tspan fill="#007AFF">Yes</tspan></text>
+<rect x="28" y="2124" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="2132" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="58" y="2143.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Otherwise</tspan></text>
+<line x1="38" y1="2154" x2="38" y2="2192" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="2162" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="2170" width="14" height="14" rx="4" fill="#FFCC00"/>
+<text x="84" y="2181.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Show alert </tspan><tspan fill="#007AFF">Response</tspan></text>
+<line x1="38" y1="2192" x2="38" y2="2230" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="2200" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="2208" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="84" y="2219.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Stop this shortcut</tspan></text>
+<rect x="28" y="2238" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="2246" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="58" y="2257.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">End If</tspan></text>
+<rect x="28" y="2276" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="2284" width="14" height="14" rx="4" fill="#FF9500"/>
+<text x="58" y="2295.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Get dictionary from </tspan><tspan fill="#007AFF">Response</tspan></text>
+<rect x="28" y="2314" width="444" height="30" rx="10" fill="#ffffff" stroke="#FF9500" stroke-width="2.5"/>
+<rect x="36" y="2322" width="14" height="14" rx="4" fill="#FF9500"/>
+<text x="58" y="2333.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Get Value for </tspan><tspan fill="#007AFF">saved</tspan><tspan fill="#1c1c1e"> in </tspan><tspan fill="#007AFF">Dictionary</tspan></text>
+<circle cx="486" cy="2329.0" r="10" fill="#FF9500"/>
+<text x="486" y="2333.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">7</text>
+<rect x="28" y="2352" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="2360" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="58" y="2371.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">If </tspan><tspan fill="#007AFF">Dictionary Value</tspan><tspan fill="#1c1c1e"> is </tspan><tspan fill="#007AFF">Yes</tspan></text>
+<rect x="28" y="2390" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="2398" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="58" y="2409.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Otherwise</tspan></text>
+<line x1="38" y1="2420" x2="38" y2="2458" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="2428" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="2436" width="14" height="14" rx="4" fill="#FFCC00"/>
+<text x="84" y="2447.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Show alert </tspan><tspan fill="#007AFF">Response</tspan></text>
+<line x1="38" y1="2458" x2="38" y2="2496" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="2466" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="2474" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="84" y="2485.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Stop this shortcut</tspan></text>
+<rect x="28" y="2504" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="2512" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="58" y="2523.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">End If</tspan></text>
+<rect x="28" y="2542" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="2550" width="14" height="14" rx="4" fill="#FF9500"/>
+<text x="58" y="2561.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Get dictionary from </tspan><tspan fill="#007AFF">Response</tspan></text>
+<rect x="28" y="2580" width="444" height="30" rx="10" fill="#ffffff" stroke="#FF9500" stroke-width="2.5"/>
+<rect x="36" y="2588" width="14" height="14" rx="4" fill="#FF9500"/>
+<text x="58" y="2599.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Get Value for </tspan><tspan fill="#007AFF">clipboardUpdated</tspan><tspan fill="#1c1c1e"> in </tspan><tspan fill="#007AFF">Dictionary</tspan></text>
+<circle cx="486" cy="2595.0" r="10" fill="#FF9500"/>
+<text x="486" y="2599.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">7</text>
+<rect x="28" y="2618" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="2626" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="58" y="2637.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">If </tspan><tspan fill="#007AFF">Dictionary Value</tspan><tspan fill="#1c1c1e"> is </tspan><tspan fill="#007AFF">Yes</tspan></text>
+<rect x="28" y="2656" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="2664" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="58" y="2675.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Otherwise</tspan></text>
+<line x1="38" y1="2686" x2="38" y2="2724" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="2694" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="2702" width="14" height="14" rx="4" fill="#FFCC00"/>
+<text x="84" y="2713.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Show alert </tspan><tspan fill="#007AFF">Response</tspan></text>
+<line x1="38" y1="2724" x2="38" y2="2762" stroke="#c7c7cc" stroke-width="2"/>
+<rect x="54" y="2732" width="418" height="30" rx="10" fill="#ffffff"/>
+<rect x="62" y="2740" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="84" y="2751.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">Stop this shortcut</tspan></text>
+<rect x="28" y="2770" width="444" height="30" rx="10" fill="#ffffff"/>
+<rect x="36" y="2778" width="14" height="14" rx="4" fill="#8e8e93"/>
+<text x="58" y="2789.5" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500"><tspan fill="#1c1c1e">End If</tspan></text>
+</svg>

@@ -38,15 +38,33 @@ On iPhones with an Action button (iPhone 15 Pro and later):
 
 1. Open **Settings → Action Button**.
 2. Swipe to **Shortcut**.
-3. Tap **Choose a Shortcut** and pick **ECSend**, or the menu Shortcut below to get both.
+3. Tap the name under it and pick **ECSend**.
 
-<p align="center"><img src="images/guide/action-button.svg" width="240" alt="Action Button settings with a Shortcut chosen"></p>
+<p align="center"><img src="images/guide/action-button-ecsend.jpg" width="240" alt="Action Button set to the ECSend Shortcut"></p>
 
 Now copy something and press the Action button.
 
+**Both on one button:** put the three Shortcuts in a folder and pick the folder instead. No extra Shortcut needed.
+
+1. In **Shortcuts**, tap **Select**, tick **ECSend**, **ECReceive** and **First time Setup**, then tap the folder button at the bottom.
+
+<p align="center"><img src="images/guide/shortcuts-select.svg" width="240" alt="The three EasyClipboard Shortcuts selected, with the folder button highlighted"></p>
+
+2. Tap **New Folder** and name it **EasyClipboard**.
+
+<p align="center"><img src="images/guide/shortcuts-new-folder.svg" width="240" alt="Select a Folder sheet with New Folder highlighted"></p>
+
+3. In **Settings → Action Button**, swipe to **Shortcut**, tap the name under it, and pick your **EasyClipboard** folder. It then reads **Show** followed by the folder's name.
+
+<p align="center"><img src="images/guide/action-button-show-folder.jpg" width="240" alt="Action Button set to Shortcut, showing a folder of Shortcuts"></p>
+
+Pressing the Action button now opens the folder, and you tap the one you want.
+
+<p align="center"><img src="images/guide/action-button-folder.svg" width="240" alt="The Action button opening the EasyClipboard folder with ECSend, ECReceive and First time Setup"></p>
+
 ## One menu for both
 
-Make a small Shortcut that asks "Send or Receive?" so one button, icon, or Back Tap does both.
+For the Action button, the folder above is simpler. For a home screen icon or Back Tap, make a small Shortcut that asks "Send or Receive?":
 
 ```mermaid
 flowchart TD

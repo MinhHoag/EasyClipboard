@@ -1,4 +1,4 @@
-# Connection decision — house Wi-Fi
+# Connection decision: house Wi-Fi
 
 The current selected workflow is **house Wi-Fi, native Shortcuts, and paired HTTP**, with no iPhone profile or ESP32. The user explicitly accepted unencrypted transport to simplify the prototype. HTTP sends content and the pairing key unencrypted; this revises the original in-transit encryption requirement for this chosen mode. Optional home HTTPS and private-hotspot HTTPS remain available. The text/photo receiver, history, and Shortcut recipe are implemented, but real iPhone and cross-app paste tests remain outstanding. Start with [setup.md](setup.md).
 
@@ -14,8 +14,8 @@ The app must not depend on users changing school network controls. A private wir
 
 | Connection | Uses the shared network for clipboard traffic? | Main tradeoffs | Current evidence |
 | --- | --- | --- | --- |
-| Existing house Wi-Fi — selected | Yes | Native Shortcut with paired HTTP, no profile; explicitly accepted unencrypted content/key transport; peer isolation can still block it | Home HTTP local checks pass; no iPhone test |
-| Laptop-created private access point — optional | No | iPhone joins a separate Wi-Fi network; requires supported laptop hardware/drivers; simultaneous school Wi-Fi and phone internet behavior need testing | Adapter reports Wi-Fi Direct GO support; actual AP/iPhone test not run |
+| Existing house Wi-Fi (selected) | Yes | Native Shortcut with paired HTTP, no profile; explicitly accepted unencrypted content/key transport; peer isolation can still block it | Home HTTP local checks pass; no iPhone test |
+| Laptop-created private access point (optional) | No | iPhone joins a separate Wi-Fi network; requires supported laptop hardware/drivers; simultaneous school Wi-Fi and phone internet behavior need testing | Adapter reports Wi-Fi Direct GO support; actual AP/iPhone test not run |
 | iPhone Personal Hotspot, including USB tethering | No, if explicitly using the tether interface | Depends on Personal Hotspot availability; Windows USB use requires Apple Devices or iTunes; phone-to-receiver reachability must be demonstrated | Apple documents tethering, not this clipboard flow |
 | Custom Bluetooth LE app | No | Requires an iPhone app or compatible existing app; does not preserve the native-Shortcuts-only setup; photo performance and app distribution need investigation | Apple documents app-based BLE data transfer; no prototype |
 
